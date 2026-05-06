@@ -1,0 +1,12 @@
+# ignoring VS folders
+ConvoluC
+Debug
+x64
+.vs
+
+# ignoring VS files
+*.slnx
+*.vcxproj*
+
+
+saida.png
