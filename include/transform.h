@@ -9,6 +9,6 @@ typedef struct {
     int pS;
 } ImgH;
 
-void paddImage(ImgH* H);
+void paddImage(ImgH *H);
 
 #endif

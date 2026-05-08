@@ -1,4 +1,7 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "../include/transform.h"
+#include "../include/utils.h"
 
 
 void paddImage(ImgH *H) {
@@ -16,10 +19,10 @@ void paddImage(ImgH *H) {
     for (int i = 0; i < newH; i++) { // percorre cada fileira
         for (int j = 0; j < newW; j++) { // percorre os pixels da fileira
             int pixPos = (i * newW + j) * H->c;
-            int isPadding = (i < H->pS || i >= H->pS + H->h) || (j < H->pS || j > H->pS + H->w);
+            int isPadding = (i < H->pS || i >= H->pS + H->h) || (j < H->pS || j >= H->pS + H->w);
 
             for (int k = 0; k < H->c; k++) { // percorre cada canal de cor
-                newData[pixPos + k] = isPadding ? 150 : H->data[((i - H->pS) * H->h + (j - H->pS)) * H->c + k];
+                newData[pixPos + k] = isPadding ? 150 : H->data[((i - H->pS) * H->w + (j - H->pS)) * H->c + k];
             }
         }
     }

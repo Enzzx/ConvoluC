@@ -10,17 +10,6 @@
 #include "../include/transform.h"
 
 
-void swapImgRef(ImgH* handler, unsigned char* newData) {
-    if (!handler || !newData) {
-        printf("Erro em swap de image buffer");
-        return;
-    }
-
-    stbi_image_free(handler->data);
-    handler->data = newData;
-}
-
-
 int main() {
     char* img = "assets/mushroom.png";
     ImgH Image;
@@ -36,16 +25,8 @@ int main() {
     if (!Image.data) return printf("Erro ao adicionar padding em %s\n", img);
 
     stbi_write_png("saida.png", Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);
-    return;
-
-    for (int i = 0; i < buffer; i += Image.c) {
-        int greyscale = (Image.data[i] + Image.data[i + 1] + Image.data[i + 2]) / 3;
-        Image.data[i] = greyscale;
-        Image.data[i + 1] = greyscale;
-        Image.data[i + 2] = greyscale;
-    }
-
     printf("Imagem criada com sucesso\n");
 
     stbi_image_free(Image.data);
+    return 0;
 }
