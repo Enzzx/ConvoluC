@@ -1,14 +1,9 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
-typedef struct {
-    unsigned char* data;
-    int w;
-    int h;
-    int c;
-    int pS;
-} ImgH;
+#include "types.h"
 
-void paddImage(ImgH *H);
+void paddImage(ImgH *H, int mSize);
+void defineMatrix(FilterType filter, int size);
 
 #endif

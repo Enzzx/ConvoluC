@@ -8,10 +8,13 @@
 #include "../include/stb_image_write.h"
 
 #include "../include/transform.h"
+#include "../include/utils.h"
+#include "../include/types.h"
 
 
 int main() {
     char* img = "assets/mushroom.png";
+    MatrixH Convo;
     ImgH Image;
     Image.data = stbi_load(img, &Image.w, &Image.h, &Image.c, 0);
 
@@ -20,9 +23,14 @@ int main() {
     int buffer = Image.w * Image.h * Image.c;
     printf("image buffer size: %d\n", buffer);
 
-    Image.pS = 20;
-    paddImage(&Image);
+    setFilter(&Convo);
+    paddImage(&Image, Convo.size);
     if (!Image.data) return printf("Erro ao adicionar padding em %s\n", img);
+
+   // adicionar um scanf
+    Convo.M = defineMatrix() {
+
+    }
 
     stbi_write_png("saida.png", Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);
     printf("Imagem criada com sucesso\n");

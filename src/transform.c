@@ -4,7 +4,8 @@
 #include "../include/utils.h"
 
 
-void paddImage(ImgH *H) {
+void paddImage(ImgH *H, int mSize) {
+    H->pS = (mSize - 1) / 2;
     if (H->pS > 10000) {
         printf("Quer explodir a CPU paezao?!!");
         return;
@@ -31,4 +32,32 @@ void paddImage(ImgH *H) {
     H->h += 2 * H->pS;
 
     swapImgRef(H, newData);
+}
+
+void defineMatrix(FilterType filter, int size) {
+    int** matrix = (int*)malloc(sizeof(int) * size);
+    for (int i = 0; i < size; i++) {
+        matrix[i] = malloc(sizeof(int) * size);
+    }
+
+    switch (filter) {
+        case SobelEdge: 
+            break;
+        case LaplacianEdge:
+            break;
+        case Emboss:
+            break;
+        case Identity:
+            break;
+
+        case Blur:
+            break;
+        case Uniform:
+            break;
+        case ColorShift:
+            break;
+        default:
+            break;
+    }
+
 }
