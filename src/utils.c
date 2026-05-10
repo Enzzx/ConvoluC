@@ -15,7 +15,7 @@ void swapImgRef(ImgH* handler, unsigned char* newData) {
 
 void setFilter(MatrixH* handler) {
     // criar um scanf pra filter
-    handler->filter = Blur;
+    handler->filter = Uniform;
 
     if (handler->filter > Identity) {
         // criar um scanf pra size
@@ -24,6 +24,14 @@ void setFilter(MatrixH* handler) {
     }
 
     handler->size = 3;
+}
+
+void normalize(float** matrix, int size, float divisor) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            matrix[i][j] /= divisor;
+        }
+    }
 }
 
 float gaussianFunc(int x, int y, int sigma, int weight) {
@@ -77,12 +85,16 @@ float** blurM(int size) {
     float** mx = newQuadMatrix(size);
 
     int half = (size + 1) / 2;
+    float sum = 0;
 
     for (int i = 0; i < size; i++) {
-        for (int j = 0; j < 0; j++) {
-            mx[i][j] = gaussianFunc(i - half, j - half, 2, 1) / (size * size);
+        for (int j = 0; j < size; j++) {
+            mx[i][j] = gaussianFunc(i - half, j - half, 3, 1);
+            sum += mx[i][j];
         }
     }
+
+    normalize(mx, size, sum);
 
     return mx;
 }
@@ -92,7 +104,11 @@ float** uniformM(int size) {
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < 0; j++) {
-            mx[i][j] = (float)1 / (size * size);
+            mx[i][j] = 1 / (size * size);
+            printf("matrix[%d][%d]: %.3f\t", i, j, mx[i][j]);
         }
+        printf("\n");
     }
+
+    return mx;
 }

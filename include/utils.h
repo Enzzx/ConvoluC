@@ -5,6 +5,7 @@
 
 void swapImgRef(ImgH* handler, unsigned char* newData);
 void setFilter(MatrixH* handler);
+void normalize(float** matrix, int size, float divisor);
 float gaussianFunc(int x, int y, int sigma, int weight);
 float** newQuadMatrix(int size);
 float** sobelM();

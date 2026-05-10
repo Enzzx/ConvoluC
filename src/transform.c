@@ -24,7 +24,7 @@ void paddImage(ImgH *H, int mSize) {
             int isPadding = (i < H->pS || i >= H->pS + H->h) || (j < H->pS || j >= H->pS + H->w);
 
             for (int k = 0; k < H->c; k++) { // percorre cada canal de cor
-                newData[pixI + k] = isPadding ? 0 : H->data[((i - H->pS) * H->w + (j - H->pS)) * H->c + k];
+                newData[pixI + k] = isPadding ? 255 : H->data[((i - H->pS) * H->w + (j - H->pS)) * H->c + k];
             }
         }
     }
@@ -66,8 +66,16 @@ void defineMatrix(MatrixH* handler) {
 }
 
 unsigned char applicateKernel(unsigned char* data, float** kernel , int point, int width, int size, int chN) {
-    int newVal = 0;
-    float half = (size + 1) / 2;
+    float newVal = 0;
+    int half = (size + 1) / 2;
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            printf("matrix[%d][%d]: %.3f\t", i, j, kernel[i][j]);
+        }
+        printf("\n");
+    }
+    return;
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
@@ -85,7 +93,7 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
 
     }
     else {
-        unsigned char* newMatrix = malloc(sizeof(img->data));
+        unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
 
         for (int i = img->pS; i < img->h - img->pS; i++) {
             for (int j = img->pS; j < (img->w - img->pS) * img->c; j += img->c) {
@@ -94,12 +102,12 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
                 for (int k = 0; k < img->c; k++) {
 
                     unsigned char newVal = applicateKernel(img->data, kernel->M, pixI + k, img->w, kernel->size, img->c);
-                    //printf("kernel no pixel [%d][%d]: %d\n", i, j, newVal);
                     newMatrix[pixI + k] = newVal;
                 }
             }
         }
 
-        swapImgRef(&img, newMatrix);
+        free(img->data);
+        img->data = newMatrix;
     }
 }
