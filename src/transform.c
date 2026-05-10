@@ -24,7 +24,7 @@ void paddImage(ImgH *H, int mSize) {
             int isPadding = (i < H->pS || i >= H->pS + H->h) || (j < H->pS || j >= H->pS + H->w);
 
             for (int k = 0; k < H->c; k++) { // percorre cada canal de cor
-                newData[pixI + k] = isPadding ? 255 : H->data[((i - H->pS) * H->w + (j - H->pS)) * H->c + k];
+                newData[pixI + k] = isPadding ? 0 : H->data[((i - H->pS) * H->w + (j - H->pS)) * H->c + k];
             }
         }
     }
@@ -32,7 +32,7 @@ void paddImage(ImgH *H, int mSize) {
     H->w += 2 * H->pS;
     H->h += 2 * H->pS;
 
-    swapImgRef(H, newData);
+    swapImgRef(H, newData, 0);
 }
 
 void defineMatrix(MatrixH* handler) {
@@ -68,14 +68,6 @@ void defineMatrix(MatrixH* handler) {
 unsigned char applicateKernel(unsigned char* data, float** kernel , int point, int width, int size, int chN) {
     float newVal = 0;
     int half = (size + 1) / 2;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            printf("matrix[%d][%d]: %.3f\t", i, j, kernel[i][j]);
-        }
-        printf("\n");
-    }
-    return;
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {

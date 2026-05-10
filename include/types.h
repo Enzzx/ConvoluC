@@ -16,10 +16,11 @@ typedef enum {
 
 typedef struct {
     unsigned char* data;
-    int w;
-    int h;
-    int c;
-    int pS;
+    int w; // width
+    int h; // height
+    int c; // channel
+    int pS; // paddingSize
+	int kt; // keepTrack
 } ImgH;
 
 typedef struct {

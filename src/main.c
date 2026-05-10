@@ -45,7 +45,7 @@ int main() {
     for (int i = 0; i < Convo.size; i++) {
         free(Convo.M[i]);
     }
-    //free(Convo.M);
-    stbi_image_free(Image.data);
+    free(Convo.M);
+    Image.kt ? stbi_image_free(Image.data) : free(Image.data);
     return 0;
 }

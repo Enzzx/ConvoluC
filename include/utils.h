@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void swapImgRef(ImgH* handler, unsigned char* newData);
+void swapImgRef(ImgH* handler, unsigned char* newData, int posterior);
 void setFilter(MatrixH* handler);
 void normalize(float** matrix, int size, float divisor);
 float gaussianFunc(int x, int y, int sigma, int weight);

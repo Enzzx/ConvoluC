@@ -3,23 +3,29 @@
 #include "../include/utils.h"
 #include "../include/stb_image.h"
 
-void swapImgRef(ImgH* handler, unsigned char* newData) {
+void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
     if (!handler || !newData) {
-        printf("Erro em swap de image buffer");
+        printf("Erro ao receber dados para realizar swap de image buffer");
         return;
     }
 
-    stbi_image_free(handler->data);
+    if (handler->kt) {
+        stbi_image_free(handler->data);
+        handler->kt = posterior;
+    }
+    else {
+        free(handler->data);
+    }
     handler->data = newData;
 }
 
 void setFilter(MatrixH* handler) {
     // criar um scanf pra filter
-    handler->filter = Uniform;
+    handler->filter = Blur;
 
     if (handler->filter > Identity) {
         // criar um scanf pra size
-        handler->size = 5;
+        handler->size = 9;
         return;
     }
 
@@ -43,7 +49,7 @@ float gaussianFunc(int x, int y, int sigma, int weight) {
 }
 
 float** newQuadMatrix(int size) {
-    float** matrix = (float*)malloc(sizeof(float) * size);
+    float** matrix = (float*)malloc(sizeof(float*) * size);
     for (int i = 0; i < size; i++) {
         matrix[i] = malloc(sizeof(float) * size);
     }
@@ -103,11 +109,9 @@ float** uniformM(int size) {
     float** mx = newQuadMatrix(size);
 
     for (int i = 0; i < size; i++) {
-        for (int j = 0; j < 0; j++) {
-            mx[i][j] = 1 / (size * size);
-            printf("matrix[%d][%d]: %.3f\t", i, j, mx[i][j]);
+        for (int j = 0; j < size; j++) {
+            mx[i][j] = 1.0 / (size * size);
         }
-        printf("\n");
     }
 
     return mx;
