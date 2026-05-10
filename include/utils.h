@@ -5,8 +5,12 @@
 
 void swapImgRef(ImgH* handler, unsigned char* newData);
 void setFilter(MatrixH* handler);
-void sobelM(int** matrix);
-void laplaceM(int** matrix);
-void embossM(int** matrix);
+float gaussianFunc(int x, int y, int sigma, int weight);
+float** newQuadMatrix(int size);
+float** sobelM();
+float** laplaceM();
+float** embossM();
+float** blurM(int size);
+float** uniformM(int size);
 
 #endif

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "../include/utils.h"
 #include "../include/stb_image.h"
 
@@ -25,20 +26,73 @@ void setFilter(MatrixH* handler) {
     handler->size = 3;
 }
 
-void sobelM(int** matrix) {
-    matrix[0][0] = -1; matrix[0][1] = 0; matrix[0][2] = 1;
-    matrix[1][0] = -2; matrix[1][1] = 0; matrix[1][2] = 2;
-    matrix[2][0] = -2; matrix[2][1] = 0; matrix[2][2] = 1;
+float gaussianFunc(int x, int y, int sigma, int weight) {
+    double e = exp(1.0);
+    double expoent = (pow(x+weight, 2) + pow(y+weight, 2)) / (2 * pow(sigma, 2));
+    double result = pow(e, -expoent);
+
+    return result;
 }
 
-void laplaceM(int** matrix) {
-    matrix[0][0] = 0; matrix[0][1] = 1; matrix[0][2] = 0;
-    matrix[1][0] = 1; matrix[1][1] = -4; matrix[1][2] = 1;
-    matrix[2][0] = 0; matrix[2][1] = 1; matrix[2][2] = 0;
+float** newQuadMatrix(int size) {
+    float** matrix = (float*)malloc(sizeof(float) * size);
+    for (int i = 0; i < size; i++) {
+        matrix[i] = malloc(sizeof(float) * size);
+    }
+
+    return matrix;
 }
 
-void embossM(int** matrix) {
-    matrix[0][0] = -1; matrix[0][1] = 0; matrix[0][2] = 0;
-    matrix[1][0] = 0; matrix[1][1] = 0; matrix[1][2] = 0;
-    matrix[2][0] = 0; matrix[2][1] = 0; matrix[2][2] = 1;
+float** sobelM() {
+    float** mx = newQuadMatrix(3);
+
+    mx[0][0] = -1; mx[0][1] = 0; mx[0][2] = 1;
+    mx[1][0] = -2; mx[1][1] = 0; mx[1][2] = 2;
+    mx[2][0] = -2; mx[2][1] = 0; mx[2][2] = 1;
+
+    return mx;
+}
+
+float** laplaceM() {
+    float** mx = newQuadMatrix(3);
+
+    mx[0][0] = 0; mx[0][1] = 1; mx[0][2] = 0;
+    mx[1][0] = 1; mx[1][1] = -4; mx[1][2] = 1;
+    mx[2][0] = 0; mx[2][1] = 1; mx[2][2] = 0;
+
+    return mx;
+}
+
+float** embossM() {
+    float** mx = newQuadMatrix(3);
+
+    mx[0][0] = -1; mx[0][1] = 0; mx[0][2] = 0;
+    mx[1][0] = 0; mx[1][1] = 0; mx[1][2] = 0;
+    mx[2][0] = 0; mx[2][1] = 0; mx[2][2] = 1;
+
+    return mx;
+}
+
+float** blurM(int size) {
+    float** mx = newQuadMatrix(size);
+
+    int half = (size + 1) / 2;
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < 0; j++) {
+            mx[i][j] = gaussianFunc(i - half, j - half, 2, 1) / (size * size);
+        }
+    }
+
+    return mx;
+}
+
+float** uniformM(int size) {
+    float** mx = newQuadMatrix(size);
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < 0; j++) {
+            mx[i][j] = (float)1 / (size * size);
+        }
+    }
 }

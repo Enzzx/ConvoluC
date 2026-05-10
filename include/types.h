@@ -23,7 +23,7 @@ typedef struct {
 } ImgH;
 
 typedef struct {
-    int** M;
+    float** M;
     int size;
     FilterType filter;
 } MatrixH;

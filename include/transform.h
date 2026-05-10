@@ -4,6 +4,8 @@
 #include "types.h"
 
 void paddImage(ImgH *H, int mSize);
-void defineMatrix(FilterType filter, int size);
+void defineMatrix(MatrixH* handler);
+unsigned char applicateKernel(unsigned char* data, float** kernel, int point, int width, int size, int chN);
+void convoluteImg(ImgH* img, MatrixH* kernel);
 
 #endif
