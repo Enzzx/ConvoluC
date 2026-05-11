@@ -24,7 +24,7 @@ typedef struct {
 } ImgH;
 
 typedef struct {
-    float** M;
+    float* M;
     int size;
     FilterType filter;
 } MatrixH;

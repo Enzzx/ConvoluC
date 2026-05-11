@@ -3,6 +3,8 @@
 #include "../include/utils.h"
 #include "../include/stb_image.h"
 
+#define FIXED_KERNEL_SIZE 3
+
 void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
     if (!handler || !newData) {
         printf("Erro ao receber dados para realizar swap de image buffer");
@@ -19,23 +21,20 @@ void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
     handler->data = newData;
 }
 
-void setFilter(MatrixH* handler) {
+void setFilter(MatrixH* handler, ImgH* imgHandler) {
     // criar um scanf pra filter
-    handler->filter = Blur;
+    handler->filter = Emboss;
 
-    if (handler->filter > Identity) {
-        // criar um scanf pra size
-        handler->size = 9;
-        return;
-    }
+    // criar um scanf pra size do ?
+    handler->size = handler->filter > Identity ? 25 : 3;
 
-    handler->size = 3;
+    imgHandler->pS = (handler->size - 1) / 2;
 }
 
-void normalize(float** matrix, int size, float divisor) {
+void normalize(float* matrix, int size, float divisor) {
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
-            matrix[i][j] /= divisor;
+            matrix[i * size + j] /= divisor;
         }
     }
 }
@@ -48,55 +47,61 @@ float gaussianFunc(int x, int y, int sigma, int weight) {
     return result;
 }
 
-float** newQuadMatrix(int size) {
-    float** matrix = (float*)malloc(sizeof(float*) * size);
-    for (int i = 0; i < size; i++) {
-        matrix[i] = malloc(sizeof(float) * size);
-    }
+float* newQuadMatrix(int size) {
+    float* matrix = (float*)malloc(sizeof(float) * size * size);
 
     return matrix;
 }
 
-float** sobelM() {
-    float** mx = newQuadMatrix(3);
+float* sobelM() {
+    float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
+    float sobelValues[] = { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
 
-    mx[0][0] = -1; mx[0][1] = 0; mx[0][2] = 1;
-    mx[1][0] = -2; mx[1][1] = 0; mx[1][2] = 2;
-    mx[2][0] = -2; mx[2][1] = 0; mx[2][2] = 1;
-
-    return mx;
-}
-
-float** laplaceM() {
-    float** mx = newQuadMatrix(3);
-
-    mx[0][0] = 0; mx[0][1] = 1; mx[0][2] = 0;
-    mx[1][0] = 1; mx[1][1] = -4; mx[1][2] = 1;
-    mx[2][0] = 0; mx[2][1] = 1; mx[2][2] = 0;
+    for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
+        for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
+            mx[i * FIXED_KERNEL_SIZE + j] = sobelValues[i * FIXED_KERNEL_SIZE + j];
+        }
+    }
 
     return mx;
 }
 
-float** embossM() {
-    float** mx = newQuadMatrix(3);
+float* laplaceM() {
+    float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
+    float laplaceValues[] = { 0, 1, 0, 1, -4, 1, 0, 1, 0 };
 
-    mx[0][0] = -1; mx[0][1] = 0; mx[0][2] = 0;
-    mx[1][0] = 0; mx[1][1] = 0; mx[1][2] = 0;
-    mx[2][0] = 0; mx[2][1] = 0; mx[2][2] = 1;
+    for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
+        for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
+            mx[i * FIXED_KERNEL_SIZE + j] = laplaceValues[i * FIXED_KERNEL_SIZE + j];
+        }
+    }
 
     return mx;
 }
 
-float** blurM(int size) {
-    float** mx = newQuadMatrix(size);
+float* embossM() {
+    float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
+    float embossValues[] = { -1, 0, 0, 0, 0, 0, 0, 0, 1 };
+
+    for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
+        for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
+            mx[i * FIXED_KERNEL_SIZE + j] = embossValues[i * FIXED_KERNEL_SIZE + j];
+        }
+    }
+
+    return mx;
+}
+
+float* blurM(int size) {
+    float* mx = newQuadMatrix(size);
 
     int half = (size + 1) / 2;
     float sum = 0;
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
-            mx[i][j] = gaussianFunc(i - half, j - half, 3, 1);
-            sum += mx[i][j];
+            mx[i * size + j] = gaussianFunc(i - half, j - half, 10, 1);
+            sum += mx[i * size + j];
         }
     }
 
@@ -105,12 +110,12 @@ float** blurM(int size) {
     return mx;
 }
 
-float** uniformM(int size) {
-    float** mx = newQuadMatrix(size);
+float* uniformM(int size) {
+    float* mx = newQuadMatrix(size);
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
-            mx[i][j] = 1.0 / (size * size);
+            mx[i * size + j] = 1.0 / (size * size);
         }
     }
 

@@ -18,6 +18,7 @@ int main() {
 
     // pega imagem
     ImgH Image;
+    Image.pS = 0;
     Image.data = stbi_load(img, &Image.w, &Image.h, &Image.c, 0);
 
     if (!Image.data) return printf("Não foi encontrada a imagem %s\n", img);
@@ -26,8 +27,8 @@ int main() {
     printf("image buffer size: %d\n", buffer);
 
     // define filtro e faz padding da imagem
-    setFilter(&Convo);
-    paddImage(&Image, Convo.size);
+    setFilter(&Convo, &Image);
+    //paddImage(&Image, Convo.size);
     if (!Image.data) return printf("Erro ao adicionar padding em %s\n", img);
 
     // cria matriz de convoluçao
@@ -42,9 +43,9 @@ int main() {
 
 
     // libera alocações
-    for (int i = 0; i < Convo.size; i++) {
+    /*for (int i = 0; i < Convo.size; i++) {
         free(Convo.M[i]);
-    }
+    }*/
     free(Convo.M);
     Image.kt ? stbi_image_free(Image.data) : free(Image.data);
     return 0;
