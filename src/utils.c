@@ -23,7 +23,7 @@ void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
 
 void setFilter(MatrixH* handler, ImgH* imgHandler) {
     // criar um scanf pra filter
-    handler->filter = Emboss;
+    handler->filter = ColorShift;
 
     // criar um scanf pra size do ?
     handler->size = handler->filter > Identity ? 25 : 3;
@@ -31,10 +31,13 @@ void setFilter(MatrixH* handler, ImgH* imgHandler) {
     imgHandler->pS = (handler->size - 1) / 2;
 }
 
-void normalize(float* matrix, int size, float divisor) {
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            matrix[i * size + j] /= divisor;
+void normalize(float* matrix, int sizeX, int sizeY, int sizeC, float divisor) {
+    for (int i = 0; i < sizeY; i++) {
+        for (int j = 0; j < sizeX; j++) {
+            for (int k = 0; k < sizeC; k++) {
+                matrix[(i * sizeX + j) * sizeC + k] /= divisor;
+
+            }
         }
     }
 }
@@ -81,11 +84,24 @@ float* laplaceM() {
 
 float* embossM() {
     float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
-    float embossValues[] = { -1, 0, 0, 0, 0, 0, 0, 0, 1 };
+    float embossValues[] = { -2, 0, 0, 0, 0, 0, 0, 0, 2 };
 
     for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
         for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
             mx[i * FIXED_KERNEL_SIZE + j] = embossValues[i * FIXED_KERNEL_SIZE + j];
+        }
+    }
+
+    return mx;
+}
+
+float* colorShiftM() {
+    float* mx = newQuadMatrix(5);
+    float colorShiftValues[] = { -2, -1, 0, 1, 2, -2, -1, 0, 1, 2, -2, -1, 0, 1, 2, -2, -1, 0, 1, 2, -2, -1, 0, 1, 2 };
+
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            mx[i * 5 + j] = colorShiftValues[i * 5 + j];
         }
     }
 
@@ -105,7 +121,7 @@ float* blurM(int size) {
         }
     }
 
-    normalize(mx, size, sum);
+    normalize(mx, size, size, 1, sum);
 
     return mx;
 }

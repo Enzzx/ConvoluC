@@ -28,7 +28,7 @@ int main() {
 
     // define filtro e faz padding da imagem
     setFilter(&Convo, &Image);
-    //paddImage(&Image, Convo.size);
+    paddImage(&Image, Convo.size);
     if (!Image.data) return printf("Erro ao adicionar padding em %s\n", img);
 
     // cria matriz de convoluçao
@@ -41,11 +41,7 @@ int main() {
     stbi_write_png("saida.png", Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);
     printf("Imagem criada com sucesso\n");
 
-
     // libera alocações
-    /*for (int i = 0; i < Convo.size; i++) {
-        free(Convo.M[i]);
-    }*/
     free(Convo.M);
     Image.kt ? stbi_image_free(Image.data) : free(Image.data);
     return 0;

@@ -6,12 +6,12 @@ typedef enum {
 	SobelEdge, // sobel edge detection
 	LaplacianEdge, // laplacian edge detection
 	Emboss, // emboss image
+	ColorShift, // red and blue edge effect
 	Identity, // self value (no change)
 
 	// - - - free size filters - - - 
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
-	ColorShift, // red and blue edge effect
 } FilterType;
 
 typedef struct {

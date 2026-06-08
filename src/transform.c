@@ -48,6 +48,9 @@ void defineMatrix(MatrixH* handler) {
         case Emboss:
             handler->M = embossM();
             break;
+        case ColorShift:
+            handler->M = colorShiftM();
+            break;
         case Identity:
             handler->M = 1;
             break;
@@ -58,8 +61,6 @@ void defineMatrix(MatrixH* handler) {
         case Uniform:
             handler->M = uniformM(handler->size);
             break;
-        case ColorShift:
-            break;
         default:
             break;
     }
@@ -68,6 +69,7 @@ void defineMatrix(MatrixH* handler) {
 
 unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
+    float newValI = 0;
     int half = (MatrixH->size + 1) / 2;
 
     for (int i = 0; i < MatrixH->size; i++) {
@@ -75,16 +77,28 @@ unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
             int diff = i+1 - half;
             int shift = diff * ImgH->w * ImgH->c;
 
+            int index = point + shift + (j * ImgH->c);
+            if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
+
             newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
+            newValI += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[j * MatrixH->size + j];
         }
     }
 
     switch (MatrixH->filter) {
     case SobelEdge:
+        return sqrt(newVal * newVal + newValI * newValI);
         break;
     case LaplacianEdge:
+        return newVal > 40 ? 255 : 0;
         break;
     case Emboss:
+        newVal += 128;
+        if (newVal < 0) return 0;
+        else if (newVal > 255) return 255;
+        else return newVal;
+        break;
+    case ColorShift:
         newVal += 128;
         if (newVal < 0) return 0;
         else if (newVal > 255) return 255;
@@ -114,10 +128,9 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
         }
     }
 
-    // convoluçao no outro eixo
-    /*if (kernel->filter <= Identity) {
-
-        normalize(newMatrix, img->w, maxVal);
+    /*if (kernel->filter == LaplacianEdge) {
+        // tá quebrando por algum motivo
+        normalize(newMatrix, img->w, img->h, img->c, maxVal);
     }*/
 
     swapImgRef(img, newMatrix, 0);
