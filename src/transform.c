@@ -36,40 +36,10 @@ void paddImage(ImgH *H, int mSize) {
     swapImgRef(H, newData, 0);
 }
 
-void defineMatrix(MatrixH* handler) {
-
-    switch (handler->filter) {
-        case SobelEdge:
-            handler->M = sobelM();
-            break;
-        case LaplacianEdge:
-            handler->M = laplaceM();
-            break;
-        case Emboss:
-            handler->M = embossM();
-            break;
-        case ColorShift:
-            handler->M = colorShiftM();
-            break;
-        case Identity:
-            handler->M = 1;
-            break;
-
-        case Blur:
-            handler->M = blurM(handler->size);
-            break;
-        case Uniform:
-            handler->M = uniformM(handler->size);
-            break;
-        default:
-            break;
-    }
-
-}
 
 unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
-    float newValI = 0;
+    float newValT = 0;
     int half = (MatrixH->size + 1) / 2;
 
     for (int i = 0; i < MatrixH->size; i++) {
@@ -81,13 +51,13 @@ unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
             if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
 
             newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
-            newValI += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[j * MatrixH->size + j];
+            newValT += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[j * MatrixH->size + i];
         }
     }
 
     switch (MatrixH->filter) {
     case SobelEdge:
-        return sqrt(newVal * newVal + newValI * newValI);
+        return sqrt(newVal * newVal + newValT * newValT);
         break;
     case LaplacianEdge:
         return newVal > 40 ? 255 : 0;

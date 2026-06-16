@@ -1,6 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#define FIXED_KERNEL_SIZE 3
+
 typedef enum {
 	// - - - fixed size filters - - - 
 	SobelEdge, // sobel edge detection

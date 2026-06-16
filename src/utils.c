@@ -3,7 +3,6 @@
 #include "../include/utils.h"
 #include "../include/stb_image.h"
 
-#define FIXED_KERNEL_SIZE 3
 
 void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
     if (!handler || !newData) {
@@ -21,12 +20,48 @@ void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
     handler->data = newData;
 }
 
-void setFilter(MatrixH* handler, ImgH* imgHandler) {
-    // criar um scanf pra filter
-    handler->filter = ColorShift;
+void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
+    int filterI;
+    printf("\nSobel (0)\tLaplacian (1)\tEmboss (2)\tColorShift (3)\tIdentity (4)\tBlur (5)\tUniform (6)\nSelecione um filtro: ");
+    scanf_s("%d", &filterI);
+    handler->filter = filterI;
 
-    // criar um scanf pra size do ?
-    handler->size = handler->filter > Identity ? 25 : 3;
+    if (handler->filter > Identity) {
+        printf("\nSelecione o tamanho do kernel: ");
+        scanf_s("%d", &handler->size);
+    }
+
+    switch (handler->filter) {
+    case SobelEdge:
+        handler->M = sobelM();
+        handler->size = FIXED_KERNEL_SIZE;
+        break;
+    case LaplacianEdge:
+        handler->M = laplaceM();
+        handler->size = FIXED_KERNEL_SIZE;
+        break;
+    case Emboss:
+        handler->M = embossM();
+        handler->size = FIXED_KERNEL_SIZE;
+        break;
+    case ColorShift:
+        handler->M = colorShiftM();
+        handler->size = 5;
+        break;
+    case Identity:
+        handler->M = 1;
+        handler->size = 1;
+        break;
+
+    case Blur:
+        handler->M = blurM(handler->size);
+        break;
+    case Uniform:
+        handler->M = uniformM(handler->size);
+        break;
+    default:
+        break;
+    }
 
     imgHandler->pS = (handler->size - 1) / 2;
 }
