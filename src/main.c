@@ -14,7 +14,7 @@
 
 
 int main() {
-    char* img = "assets/mario.png";
+    char* img = "assets/pasaro.png";
     MatrixH Convo;
     ImgH Image;
     // escolha do filtro

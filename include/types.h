@@ -26,9 +26,17 @@ typedef struct {
 } ImgH;
 
 typedef struct {
-    float* M;
-    int size;
-    FilterType filter;
+    float* M; // convolution matrix
+    int size; // matrix order
+    FilterType filter; // filter type
 } MatrixH;
+
+typedef struct {
+    ImgH* img; // img handler
+    MatrixH* kernel; // kernel handler
+    int i; // row index
+    float* maxVal; // max value of convoluted pixels
+    unsigned char* newMatrix; // new img buffer
+} rowKernelH;
 
 #endif

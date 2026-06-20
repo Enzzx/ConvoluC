@@ -4,7 +4,8 @@
 #include "types.h"
 
 void paddImage(ImgH *H, int mSize);
-unsigned char applicateKernel(unsigned char* data, float* kernel, int point, int width, int size, int chN);
 void convoluteImg(ImgH* img, MatrixH* kernel);
+int convoluteRow(void* args);
+unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point);
 
 #endif

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <threads.h>
 #include "../include/stb_image.h"
 #include "../include/transform.h"
 #include "../include/utils.h"
@@ -36,6 +37,50 @@ void paddImage(ImgH *H, int mSize) {
     swapImgRef(H, newData, 0);
 }
 
+void convoluteImg(ImgH* img, MatrixH* kernel) {
+    float maxVal = 0;
+    unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
+
+    rowKernelH handler = {
+        handler.img = img,
+        handler.kernel = kernel,
+        handler.maxVal = &maxVal,
+        handler.newMatrix = newMatrix
+    };
+
+    for (int i = img->pS; i < img->h - img->pS; i++) {
+        handler.i = i;
+
+        thrd_t convLineT;
+        thrd_create(&convLineT, convoluteRow, &handler);
+        thrd_join(convLineT, NULL);
+    }
+
+    /*if (kernel->filter == LaplacianEdge) {
+        // tá quebrando por algum motivo
+        normalize(newMatrix, img->w, img->h, img->c, maxVal);
+    }*/
+
+    swapImgRef(img, newMatrix, 0);
+}
+
+int convoluteRow(void* args) {
+    rowKernelH* data = (rowKernelH*)args;
+
+    for (int j = data->img->pS; j < (data->img->w - data->img->pS) * data->img->c; j += data->img->c) {
+        int pixI = data->i * data->img->w * data->img->c + j;
+
+        for (int k = 0; k < data->img->c; k++) {
+
+            unsigned char newVal = applicateKernel(data->img, data->kernel, pixI + k);
+
+            *data->maxVal = *data->maxVal >= newVal ? *data->maxVal : (float)newVal;
+            data->newMatrix[pixI + k] = newVal;
+        }
+    }
+
+    return 0;
+}
 
 unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
@@ -78,30 +123,4 @@ unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
         return newVal;
        
     }
-}
-
-void convoluteImg(ImgH* img, MatrixH* kernel) {
-    float maxVal = 0;
-    unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
-
-    for (int i = img->pS; i < img->h - img->pS; i++) {
-        for (int j = img->pS; j < (img->w - img->pS) * img->c; j += img->c) {
-            int pixI = i * img->w * img->c + j;
-
-            for (int k = 0; k < img->c; k++) {
-
-                unsigned char newVal = applicateKernel(img, kernel, pixI + k);
-
-                maxVal = maxVal >= newVal ? maxVal : (float)newVal;
-                newMatrix[pixI + k] = newVal;
-            }
-        }
-    }
-
-    /*if (kernel->filter == LaplacianEdge) {
-        // tá quebrando por algum motivo
-        normalize(newMatrix, img->w, img->h, img->c, maxVal);
-    }*/
-
-    swapImgRef(img, newMatrix, 0);
 }
