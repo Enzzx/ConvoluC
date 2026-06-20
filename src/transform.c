@@ -37,50 +37,71 @@ void paddImage(ImgH *H, int mSize) {
     swapImgRef(H, newData, 0);
 }
 
+#define NUM_THREADS 16 // Defina baseado nos núcleos da sua CPU
+
 void convoluteImg(ImgH* img, MatrixH* kernel) {
     float maxVal = 0;
     unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
 
-    rowKernelH handler = {
-        handler.img = img,
-        handler.kernel = kernel,
-        handler.maxVal = &maxVal,
-        handler.newMatrix = newMatrix
-    };
+    thrd_t threads[NUM_THREADS];
+    rowKernelH handlers[NUM_THREADS]; // Cada thread precisa da sua própria struct para evitar conflitos
 
-    for (int i = img->pS; i < img->h - img->pS; i++) {
-        handler.i = i;
+    int totalRows = (img->h - img->pS) - img->pS;
+    int rowsPerThread = totalRows / NUM_THREADS;
 
-        thrd_t convLineT;
-        thrd_create(&convLineT, convoluteRow, &handler);
-        thrd_join(convLineT, NULL);
+    // Dispara todas as threads simultaneamente
+    for (int t = 0; t < NUM_THREADS; t++) {
+        handlers[t].img = img;
+        handlers[t].kernel = kernel;
+        handlers[t].newMatrix = newMatrix;
+
+        // Cada thread ganha um intervalo de linhas independente
+        handlers[t].startRow = img->pS + (t * rowsPerThread);
+        handlers[t].endRow = (t == NUM_THREADS - 1) ? (img->h - img->pS) : (handlers[t].startRow + rowsPerThread);
+
+        // Cada thread calcula seu maxVal local para evitar Race Condition
+        handlers[t].localMax = 0;
+
+        thrd_create(&threads[t], convoluteRow, &handlers[t]);
     }
 
-    /*if (kernel->filter == LaplacianEdge) {
-        // tá quebrando por algum motivo
+    // Agora sim: espera todas terminarem (elas rodaram juntas!)
+    for (int t = 0; t < NUM_THREADS; t++) {
+        thrd_join(threads[t], NULL);
+        if (handlers[t].localMax > maxVal) {
+            maxVal = handlers[t].localMax;
+        }
+    }
+
+    // Se o seu normalize usa o maxVal, ele deve ser chamado aqui
+    if (kernel->filter == LaplacianEdge) {
         normalize(newMatrix, img->w, img->h, img->c, maxVal);
-    }*/
+    }
 
     swapImgRef(img, newMatrix, 0);
 }
 
+
 int convoluteRow(void* args) {
     rowKernelH* data = (rowKernelH*)args;
 
-    for (int j = data->img->pS; j < (data->img->w - data->img->pS) * data->img->c; j += data->img->c) {
-        int pixI = data->i * data->img->w * data->img->c + j;
+    // Modificado para rodar do startRow até o endRow da thread
+    for (int i = data->startRow; i < data->endRow; i++) {
+        for (int j = data->img->pS; j < (data->img->w - data->img->pS) * data->img->c; j += data->img->c) {
+            int pixI = i * data->img->w * data->img->c + j;
 
-        for (int k = 0; k < data->img->c; k++) {
+            for (int k = 0; k < data->img->c; k++) {
+                unsigned char newVal = applicateKernel(data->img, data->kernel, pixI + k);
 
-            unsigned char newVal = applicateKernel(data->img, data->kernel, pixI + k);
-
-            *data->maxVal = *data->maxVal >= newVal ? *data->maxVal : (float)newVal;
-            data->newMatrix[pixI + k] = newVal;
+                // Correção da comparação do MaxVal usando variável local da struct
+                data->localMax = data->localMax >= newVal ? data->localMax : (float)newVal;
+                data->newMatrix[pixI + k] = newVal;
+            }
         }
     }
-
     return 0;
 }
+
 
 unsigned char applicateKernel(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;

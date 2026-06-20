@@ -32,11 +32,13 @@ typedef struct {
 } MatrixH;
 
 typedef struct {
-    ImgH* img; // img handler
-    MatrixH* kernel; // kernel handler
-    int i; // row index
-    float* maxVal; // max value of convoluted pixels
-    unsigned char* newMatrix; // new img buffer
+    ImgH* img;                 // Ponteiro para a imagem original
+    MatrixH* kernel;           // Ponteiro para o kernel do filtro
+    int startRow;              // Linha inicial que ESTA thread vai processar
+    int endRow;                // Linha final (limite) que ESTA thread vai processar
+    float localMax;            // Valor máximo encontrado apenas por esta thread
+    unsigned char* newMatrix;  // Buffer compartilhado da nova imagem
 } rowKernelH;
+
 
 #endif
