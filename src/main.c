@@ -14,7 +14,7 @@
 
 
 int main() {
-    char* img = "assets/mario.png";
+    char* img = "assets/twin-towers.png";
     MatrixH Convo;
     ImgH Image;
     defineMatrix(&Convo, &Image);   // escolha do filtro
@@ -26,11 +26,9 @@ int main() {
     printf("image buffer size: %d\n", buffer);
 
 
-
     clock_t clocki = clock();
-    /*paddImage(&Image, Convo.size);    // faz padding da imagem
-    if (!Image.data) return printf("Erro ao adicionar padding em %s\n", img);*/
 
+    //paddImage(&Image, Convo.size);    // faz padding da imagem
     convoluteImg(&Image, &Convo);   // aplica convolução na imagem
 
     clock_t clockf = clock();

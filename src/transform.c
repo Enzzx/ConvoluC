@@ -9,11 +9,6 @@
 
 
 void paddImage(ImgH *H, int mSize) {
-    if (H->pS > 100) {
-        printf("Quer fritar a CPU paezao?!!");
-        return;
-    }
-
     int newBuffer = (((H->w) + 2 * H->pS) * ((H->h) + 2 * H->pS)) * H->c;
     unsigned char* newData = (unsigned char*)malloc(sizeof(unsigned char) * newBuffer);
 
@@ -42,12 +37,13 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
     float maxVal = 0;
     unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
 
+    int fullWlen = img->w * img->c;
     int i;
 
     #pragma omp parallel for schedule(static) private(i)
     for (i = img->pS; i < img->h - img->pS; i++) {
-        for (int j = img->pS; j < (img->w - img->pS) * img->c; j += img->c) {
-            int pixI = i * img->w * img->c + j;
+        for (int j = img->pS * img->c; j < (img->w - img->pS) * img->c; j += img->c) {
+            int pixI = i * fullWlen + j;
 
             for (int k = 0; k < img->c; k++) {
                 unsigned char newVal = applicateKernel(img, kernel, pixI + k);
@@ -91,16 +87,13 @@ float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newValT = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 0; i < MatrixH->size; i++) {
+    for (int i = 1; i < MatrixH->size - 1; i++) {
         for (int j = 0; j < MatrixH->size; j++) {
-            int diff = i + 1 - half;
-            int shift = diff * ImgH->w * ImgH->c;
+            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+            int offsetX = (j + 1 - half) * ImgH->c;
 
-            int index = point + shift + (j * ImgH->c);
-            if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
-
-            newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
-            newValT += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[j * MatrixH->size + i];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
+            newValT += ImgH->data[point + offsetY + offsetX] * MatrixH->M[j * MatrixH->size + i];
         }
     }
 
@@ -111,15 +104,12 @@ float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 0; i < MatrixH->size; i++) {
+    for (int i = 1; i < MatrixH->size - 1; i++) {
         for (int j = 0; j < MatrixH->size; j++) {
-            int diff = i + 1 - half;
-            int shift = diff * ImgH->w * ImgH->c;
+            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+            int offsetX = (j + 1 - half) * ImgH->c;
 
-            int index = point + shift + (j * ImgH->c);
-            if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
-
-            newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
         }
     }
 
@@ -130,15 +120,12 @@ float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 0; i < MatrixH->size; i++) {
+    for (int i = 1; i < MatrixH->size - 1; i++) {
         for (int j = 0; j < MatrixH->size; j++) {
-            int diff = i + 1 - half;
-            int shift = diff * ImgH->w * ImgH->c;
+            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+            int offsetX = (j + 1 - half) * ImgH->c;
 
-            int index = point + shift + (j * ImgH->c);
-            if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
-
-            newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
         }
     }
 
@@ -152,15 +139,12 @@ float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 0; i < MatrixH->size; i++) {
+    for (int i = 1; i < MatrixH->size - 1; i++) {
         for (int j = 0; j < MatrixH->size; j++) {
-            int diff = i + 1 - half;
-            int shift = diff * ImgH->w * ImgH->c;
+            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+            int offsetX = (j + 1 - half) * ImgH->c;
 
-            int index = point + shift + (j * ImgH->c);
-            if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
-
-            newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
         }
     }
 
@@ -174,15 +158,12 @@ float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 0; i < MatrixH->size; i++) {
+    for (int i = 1; i < MatrixH->size-1; i++) {
         for (int j = 0; j < MatrixH->size; j++) {
-            int diff = i + 1 - half;
-            int shift = diff * ImgH->w * ImgH->c;
+            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+            int offsetX = (j + 1 - half) * ImgH->c;
 
-            int index = point + shift + (j * ImgH->c);
-            if (index < 0 || index >= ImgH->w * ImgH->h * ImgH->c) continue;
-
-            newVal += ImgH->data[point + shift + (j * ImgH->c)] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
         }
     }
 

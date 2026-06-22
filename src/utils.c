@@ -29,6 +29,11 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
     if (handler->filter > Identity) {
         printf("\nSelecione o tamanho do kernel: ");
         scanf_s("%d", &handler->size);
+
+        if (handler->size > 100)
+            return printf("Quer fritar a CPU paezao?!!");
+
+        if (handler->size % 2 == 0) handler->size++;
     }
 
     switch (handler->filter) {
@@ -93,7 +98,11 @@ float* newQuadMatrix(int size) {
 
 float* sobelM() {
     float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
-    float sobelValues[] = { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+    float sobelValues[] = {
+        -1, 0, 1,
+        -2, 0, 2,
+        -1, 0, 1
+    };
 
     for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
         for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
@@ -106,7 +115,11 @@ float* sobelM() {
 
 float* laplaceM() {
     float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
-    float laplaceValues[] = { 0, 1, 0, 1, -4, 1, 0, 1, 0 };
+    float laplaceValues[] = {
+        0, 1, 0,
+        1, -4, 1,
+        0, 1, 0
+    };
 
     for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
         for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
@@ -119,7 +132,11 @@ float* laplaceM() {
 
 float* embossM() {
     float* mx = newQuadMatrix(FIXED_KERNEL_SIZE);
-    float embossValues[] = { -2, 0, 0, 0, 0, 0, 0, 0, 2 };
+    float embossValues[] = {
+        -2, 0, 0,
+        0, 0, 0,
+        0, 0, 2
+    };
 
     for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
         for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
@@ -132,7 +149,13 @@ float* embossM() {
 
 float* colorShiftM() {
     float* mx = newQuadMatrix(5);
-    float colorShiftValues[] = { -2, -1, 0, 1, 2, -2, -1, 0, 1, 2, -2, -1, 0, 1, 2, -2, -1, 0, 1, 2, -2, -1, 0, 1, 2 };
+    float colorShiftValues[] = {
+        -2, -1, 0, 1, 2,
+        -2, -1, 0, 1, 2,
+        -2, -1, 0, 1, 2,
+        -2, -1, 0, 1, 2,
+        -2, -1, 0, 1, 2
+    };
 
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
