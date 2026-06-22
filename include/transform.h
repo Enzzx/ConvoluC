@@ -4,7 +4,12 @@
 #include "types.h"
 
 void paddImage(ImgH *H, int mSize);
-unsigned char applicateKernel(unsigned char* data, float* kernel, int point, int width, int size, int chN);
 void convoluteImg(ImgH* img, MatrixH* kernel);
+unsigned char applicateKernel(ImgH* i, MatrixH* k, int p);
+float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point);
+float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point);
+float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point);
+float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point);
+float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point);
 
 #endif
