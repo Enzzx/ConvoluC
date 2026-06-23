@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <threads.h>
+#include <omp.h>
 #include "../include/stb_image.h"
 #include "../include/transform.h"
 #include "../include/utils.h"
@@ -40,7 +40,7 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
     int fullWlen = img->w * img->c;
     int i;
 
-    #pragma omp parallel for schedule(static) private(i)
+    #pragma omp parallel for schedule(static) private(i) reduction(max: maxVal)
     for (i = img->pS; i < img->h - img->pS; i++) {
         for (int j = img->pS * img->c; j < (img->w - img->pS) * img->c; j += img->c) {
             int pixI = i * fullWlen + j;
@@ -82,50 +82,56 @@ unsigned char applicateKernel(ImgH* i, MatrixH* k, int p) {
     }
 }
 
-float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point) {
+static inline float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     float newValT = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 1; i < MatrixH->size - 1; i++) {
+    for (int i = 0; i < MatrixH->size; i++) {
+        int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+        int lineHeight = i * MatrixH->size;
+
         for (int j = 0; j < MatrixH->size; j++) {
-            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
             int offsetX = (j + 1 - half) * ImgH->c;
 
-            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[lineHeight + j];
             newValT += ImgH->data[point + offsetY + offsetX] * MatrixH->M[j * MatrixH->size + i];
         }
     }
 
-    return sqrt(newVal * newVal + newValT * newValT);
+    return sqrtf(newVal * newVal + newValT * newValT);
 }
 
-float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point) {
+static inline float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 1; i < MatrixH->size - 1; i++) {
+    for (int i = 0; i < MatrixH->size; i++) {
+        int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+        int lineHeight = i * MatrixH->size;
+
         for (int j = 0; j < MatrixH->size; j++) {
-            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
             int offsetX = (j + 1 - half) * ImgH->c;
 
-            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[lineHeight + j];
         }
     }
 
     return newVal > 40 ? 255 : 0;
 }
 
-float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point) {
+static inline float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 1; i < MatrixH->size - 1; i++) {
+    for (int i = 0; i < MatrixH->size; i++) {
+        int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+        int lineHeight = i * MatrixH->size;
+
         for (int j = 0; j < MatrixH->size; j++) {
-            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
             int offsetX = (j + 1 - half) * ImgH->c;
 
-            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[lineHeight + j];
         }
     }
 
@@ -135,16 +141,18 @@ float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point) {
     else return newVal;
 }
 
-float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point) {
+static inline float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
-    for (int i = 1; i < MatrixH->size - 1; i++) {
+    for (int i = 0; i < MatrixH->size; i++) {
+        int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+        int lineHeight = i * MatrixH->size;
+
         for (int j = 0; j < MatrixH->size; j++) {
-            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
             int offsetX = (j + 1 - half) * ImgH->c;
 
-            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[lineHeight + j];
         }
     }
 
@@ -154,16 +162,18 @@ float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point) {
     else return newVal;
 }
 
-float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point) {
+static inline float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point) {
     float newVal = 0;
     int half = (MatrixH->size + 1) / 2;
 
     for (int i = 1; i < MatrixH->size-1; i++) {
+        int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
+        int lineHeight = i * MatrixH->size;
+
         for (int j = 0; j < MatrixH->size; j++) {
-            int offsetY = (i + 1 - half) * ImgH->w * ImgH->c;
             int offsetX = (j + 1 - half) * ImgH->c;
 
-            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[i * MatrixH->size + j];
+            newVal += ImgH->data[point + offsetY + offsetX] * MatrixH->M[lineHeight + j];
         }
     }
 
