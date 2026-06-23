@@ -5,11 +5,11 @@
 
 void paddImage(ImgH *H, int mSize);
 void convoluteImg(ImgH* img, MatrixH* kernel);
-unsigned char applicateKernel(ImgH* i, MatrixH* k, int p);
-float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point);
-float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point);
-float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point);
-float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point);
-float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point);
+float applicateKernel(ImgH* i, MatrixH* k, int p, unsigned char* nM);
+float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel);
+float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel);
+float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel);
+float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel);
+float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel);
 
 #endif
