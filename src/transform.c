@@ -62,12 +62,29 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
 
 static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* nM) {
     switch (k->filter) {
+        case ColorShift:    return appColorShift(i, k, p, nM);
         case SobelEdge:     return appSobel(i, p, nM);
         case LaplacianEdge: return appLaplace(i, k, p, nM);
         case Emboss:        return appEmboss(i, p, nM);
-        case ColorShift:    return appColorShift(i, k, p, nM);
+        case MotionBlur:    return appMotionBlur(i, k, p, nM);
+        case Sharpen:       return appSharpen(i, k, p, nM);
         default:            return appDefault(i, k, p, nM);
     }
+}
+
+static inline float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
+    int channels = ImgH->c;
+    int pixelsShift = MatrixH->size * ImgH->c;
+
+    imgPixel[0] = ImgH->data[point - pixelsShift];
+    imgPixel[1] = ImgH->data[point + 1];
+    imgPixel[2] = ImgH->data[point + pixelsShift];
+
+    for (int i = 3; i < ImgH->c; i++) {
+        imgPixel[i] = ImgH->data[point + i];
+    }
+
+    return 1;
 }
 
 static inline float appSobel(ImgH* ImgH, int point, unsigned char* imgPixel) {
@@ -166,19 +183,12 @@ static inline float appEmboss(ImgH* ImgH, int point, unsigned char* imgPixel) {
     return maxVal;
 }
 
-static inline float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
-    int channels = ImgH->c;
-    int pixelsShift = MatrixH->mag * ImgH->c;
+static inline float appMotionBlur(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
+    // vazioahakslc
+}
 
-    imgPixel[0] = ImgH->data[point - pixelsShift];
-    imgPixel[1] = ImgH->data[point + 1];
-    imgPixel[2] = ImgH->data[point + pixelsShift];
-
-    for (int i = 3; i < ImgH->c; i++) {
-        imgPixel[i] = ImgH->data[point + i];
-    }
-
-    return 0;
+static inline float appSharpen(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
+    // vazio tb
 }
 
 static inline float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {

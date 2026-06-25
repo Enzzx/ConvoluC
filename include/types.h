@@ -6,7 +6,8 @@
 typedef enum {
 	// - - - only in-pixel change filters - - - 
 	ColorShift, // red and blue edge effect
-
+	NegativeColor, // invert the image colors
+	Greyscale, // put all colors on monocromatic grey scale grade
 
 	// - - - fixed size filters - - - 
 	SobelEdge, // sobel edge detection
@@ -17,6 +18,8 @@ typedef enum {
 	// - - - free size filters - - - 
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
+	MotionBlur, // blur with motion effect
+	Sharpen, // sharp image
 } FilterType;
 
 typedef struct {
@@ -29,7 +32,6 @@ typedef struct {
 } ImgH;
 
 typedef struct {
-	int mag; // magnitude (of any filter who needs an value)
     float* M; // matrix of convolution (kernel)
     int size; // matrix order
     FilterType filter; // filter enum

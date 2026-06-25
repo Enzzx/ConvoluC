@@ -13,5 +13,6 @@ float* laplaceM();
 float* embossM();
 float* blurM(int size);
 float* uniformM(int size);
+float* motionBlurM(int size);
 
 #endif

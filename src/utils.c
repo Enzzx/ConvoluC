@@ -26,16 +26,20 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
     
     const char* filterNames[] = {
         "ColorShift",
+        "NegativeColor",
+        "GreyScale",
         "SobelEdge",
         "LaplacianEdge",
         "Emboss",
         "Identity",
         "Blur",
-        "Uniform"
+        "Uniform",
+        "MotionBlur",
+        "Sharpen"
     };
 
-    for (int i = 0; i < 7; i++) {
-        printf("(%d) %s\t", i, filterNames[i]);
+    for (int i = 0; i < 11; i++) {
+        printf("(%d) %s\t\t", i, filterNames[i]);
         if (i % 4 == 3) printf("\n");
     }
     printf("\nEscolha um filtro: ");
@@ -55,10 +59,20 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
 
     switch (handler->filter) {
     case ColorShift:
+        handler->M = 1;
         handler->size = 1;
         printf("\nEscolha o tamanho de desvio: ");
-        scanf_s("%d", &handler->mag);
+        scanf_s("%d", &handler->size);
         break;
+    case NegativeColor:
+        handler->M = 1;
+        handler->size = 1;
+        break;
+    case Greyscale:
+        handler->M = 1;
+        handler->size = 1;
+        break;
+
     case SobelEdge:
         handler->M = sobelM();
         handler->size = FIXED_KERNEL_SIZE;
@@ -81,6 +95,12 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         break;
     case Uniform:
         handler->M = uniformM(handler->size);
+        break;
+    case MotionBlur:
+        handler->M;
+        break;
+    case Sharpen:
+        handler->M;
         break;
     default:
         break;
@@ -110,7 +130,7 @@ float gaussianFunc(int x, int y, int sigma, int weight) {
 }
 
 float* newQuadMatrix(int size) {
-    float* matrix = (float*)malloc(sizeof(float) * size * size);
+    float* matrix = (float*)calloc(size * size, sizeof(float));
 
     return matrix;
 }
@@ -191,6 +211,18 @@ float* uniformM(int size) {
         for (int j = 0; j < size; j++) {
             mx[i * size + j] = 1.0 / (size * size);
         }
+    }
+
+    return mx;
+}
+
+float* motionBlurM(int size) {
+    float* mx = newQuadMatrix(size);
+
+    int half = (size + 1) / 2;
+
+    for (int i = 0; i < size; i++) {
+        mx[half * size + i] = 1.0;
     }
 
     return mx;
