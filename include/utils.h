@@ -11,7 +11,6 @@ float* newQuadMatrix(int size);
 float* sobelM();
 float* laplaceM();
 float* embossM();
-float* colorShiftM();
 float* blurM(int size);
 float* uniformM(int size);
 

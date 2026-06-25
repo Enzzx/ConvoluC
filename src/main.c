@@ -14,7 +14,7 @@
 
 
 int main() {
-    char* img = "assets/mario.png";
+    char* img = "assets/twin-towers.png";
     MatrixH Convo;
     ImgH Image;
     defineMatrix(&Convo, &Image);   // escolha do filtro
@@ -40,7 +40,8 @@ int main() {
     stbi_write_png("saida.png", Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);  // salva saída
     printf("Imagem criada com sucesso\n");
 
-    free(Convo.M);  // libera alocações
+    if (Convo.filter > ColorShift)
+        free(Convo.M);  // libera alocações
     Image.kt ? stbi_image_free(Image.data) : free(Image.data);
 
     return 0;

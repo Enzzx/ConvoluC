@@ -62,45 +62,43 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
 
 static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* nM) {
     switch (k->filter) {
-        case SobelEdge:     return appSobel(i, k, p, nM);
+        case SobelEdge:     return appSobel(i, p, nM);
         case LaplacianEdge: return appLaplace(i, k, p, nM);
-        case Emboss:        return appEmboss(i, k, p, nM);
+        case Emboss:        return appEmboss(i, p, nM);
         case ColorShift:    return appColorShift(i, k, p, nM);
         default:            return appDefault(i, k, p, nM);
     }
 }
 
-static inline float appSobel(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
+static inline float appSobel(ImgH* ImgH, int point, unsigned char* imgPixel) {
     float newVal[maxChannels] = { 0 };
     float newValT[maxChannels] = { 0 };
     float maxVal = 0;
 
-    int size = MatrixH->size;
-    int width = ImgH->w;
     int channels = ImgH->c;
-    int half = (size + 1) / 2;
+    int wLen = ImgH->w * channels;
 
-    for (int i = 0; i < size; i++) {
-        int offsetY = (i + 1 - half) * width * channels;
-        int lineHeight = i * size;
+    int rowTop = point - wLen;
+    int rowMid = point;
+    int rowBot = point + wLen;
 
-        for (int j = 0; j < size; j++) {
-            int offsetX = (j + 1 - half) * channels;
-            int pixBase = point + offsetY + offsetX;
+    for (int k = 0; k < channels; k++) {
+        newVal[k] =
+            ((float)ImgH->data[rowTop - channels + k] * -1.0f) + ((float)ImgH->data[rowTop + channels + k] * 1.0f) +
+            ((float)ImgH->data[rowMid - channels + k] * -2.0f) + ((float)ImgH->data[rowMid + channels + k] * 2.0f) +
+            ((float)ImgH->data[rowBot - channels + k] * -1.0f) + ((float)ImgH->data[rowBot + channels + k] * 1.0f);
 
-            float mVal = MatrixH->M[lineHeight + j];
-            float mValT = MatrixH->M[j * size + i];
-            for (int k = 0; k < channels; k++) {
-                newVal[k] += ImgH->data[pixBase + k] * mVal;
-                newValT[k] += ImgH->data[pixBase + k] * mValT;
-            }
-
-        }
+        newValT[k] =
+            ((float)ImgH->data[rowTop - channels + k] * -1.0f) + ((float)ImgH->data[rowTop + k] * -2.0f) + ((float)ImgH->data[rowTop + channels + k] * -1.0f) +
+            ((float)ImgH->data[rowBot - channels + k] * 1.0f) + ((float)ImgH->data[rowBot + k] * 2.0f) + ((float)ImgH->data[rowBot + channels + k] * 1.0f);
     }
 
-    for (int k = 0; k < ImgH->c; k++) {
+    for (int k = 0; k < channels; k++) {
         float kVal = sqrtf(newVal[k] * newVal[k] + newValT[k] * newValT[k]);
-        imgPixel[k] = kVal;
+
+        if (kVal > 255.0f)      imgPixel[k] = 255;
+        else if (kVal < 0.0f)   imgPixel[k] = 0;
+        else                    imgPixel[k] = (unsigned char)kVal;
 
         if (kVal > maxVal)
             maxVal = kVal;
@@ -144,32 +142,18 @@ static inline float appLaplace(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned
     return maxVal;
 }
 
-static inline float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
-    float newVal[maxChannels] = { 0 };
+static inline float appEmboss(ImgH* ImgH, int point, unsigned char* imgPixel) {
     float maxVal = 0;
-
-    int size = MatrixH->size;
     int width = ImgH->w;
     int channels = ImgH->c;
-    int half = (size + 1) / 2;
 
-    for (int i = 0; i < size; i++) {
-        int offsetY = (i + 1 - half) * width * channels;
-        int lineHeight = i * size;
-
-        for (int j = 0; j < size; j++) {
-            int offsetX = (j + 1 - half) * channels;
-            int pixBase = point + offsetY + offsetX;
-
-            float mVal = MatrixH->M[lineHeight + j];
-            for (int k = 0; k < channels; k++) {
-                newVal[k] += ImgH->data[pixBase + k] * mVal;
-            }
-        }
-    }
+    int topLeftPos = point - width * channels - channels;
+    int bottomRightPos = point + width * channels + channels;
 
     for (int k = 0; k < channels; k++) {
-        float kVal = newVal[k] + 128;
+        float kVal = ImgH->data[topLeftPos + k] * -2 + ImgH->data[bottomRightPos + k] * 2;
+        kVal += 128;
+
         if (kVal < 0) kVal = 0;
         else if (kVal > 255) kVal = 255;
 
@@ -183,41 +167,18 @@ static inline float appEmboss(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned 
 }
 
 static inline float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
-    float newVal[maxChannels] = { 0 };
-    float maxVal = 0;
-
-    int size = MatrixH->size;
-    int width = ImgH->w;
     int channels = ImgH->c;
-    int half = (size + 1) / 2;
+    int pixelsShift = MatrixH->mag * ImgH->c;
 
-    for (int i = 0; i < size; i++) {
-        int offsetY = (i + 1 - half) * width * channels;
-        int lineHeight = i * size;
+    imgPixel[0] = ImgH->data[point - pixelsShift];
+    imgPixel[1] = ImgH->data[point + 1];
+    imgPixel[2] = ImgH->data[point + pixelsShift];
 
-        for (int j = 0; j < size; j++) {
-            int offsetX = (j + 1 - half) * channels;
-            int pixBase = point + offsetY + offsetX;
-
-            float mVal = MatrixH->M[lineHeight + j];
-            for (int k = 0; k < channels; k++) {
-                newVal[k] += ImgH->data[pixBase + k] * mVal;
-            }
-        }
+    for (int i = 3; i < ImgH->c; i++) {
+        imgPixel[i] = ImgH->data[point + i];
     }
 
-    for (int k = 0; k < channels; k++) {
-        float kVal = newVal[k] + 128;
-        if (kVal < 0) kVal = 0;
-        else if (kVal > 255) kVal = 255;
-
-        imgPixel[k] = kVal;
-
-        if (kVal > maxVal)
-            maxVal = kVal;
-    }
-
-    return maxVal;
+    return 0;
 }
 
 static inline float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {

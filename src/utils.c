@@ -20,9 +20,26 @@ void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
     handler->data = newData;
 }
 
+
 void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
     int filterI;
-    printf("\nSobel (0)\tLaplacian (1)\tEmboss (2)\tColorShift (3)\tIdentity (4)\tBlur (5)\tUniform (6)\nSelecione um filtro: ");
+    
+    const char* filterNames[] = {
+        "ColorShift",
+        "SobelEdge",
+        "LaplacianEdge",
+        "Emboss",
+        "Identity",
+        "Blur",
+        "Uniform"
+    };
+
+    for (int i = 0; i < 7; i++) {
+        printf("(%d) %s\t", i, filterNames[i]);
+        if (i % 4 == 3) printf("\n");
+    }
+    printf("\nEscolha um filtro: ");
+
     scanf_s("%d", &filterI);
     handler->filter = filterI;
 
@@ -31,12 +48,17 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         scanf_s("%d", &handler->size);
 
         if (handler->size > 100)
-            return printf("Quer fritar a CPU paezao?!!");
+            return printf("\nQuer fritar a CPU paezao?!!");
 
         if (handler->size % 2 == 0) handler->size++;
     }
 
     switch (handler->filter) {
+    case ColorShift:
+        handler->size = 1;
+        printf("\nEscolha o tamanho de desvio: ");
+        scanf_s("%d", &handler->mag);
+        break;
     case SobelEdge:
         handler->M = sobelM();
         handler->size = FIXED_KERNEL_SIZE;
@@ -48,10 +70,6 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
     case Emboss:
         handler->M = embossM();
         handler->size = FIXED_KERNEL_SIZE;
-        break;
-    case ColorShift:
-        handler->M = colorShiftM();
-        handler->size = 5;
         break;
     case Identity:
         handler->M = 1;
@@ -70,6 +88,7 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
 
     imgHandler->pS = (handler->size - 1) / 2;
 }
+
 
 void normalize(float* matrix, int sizeX, int sizeY, int sizeC, float divisor) {
     for (int i = 0; i < sizeY; i++) {
@@ -141,25 +160,6 @@ float* embossM() {
     for (int i = 0; i < FIXED_KERNEL_SIZE; i++) {
         for (int j = 0; j < FIXED_KERNEL_SIZE; j++) {
             mx[i * FIXED_KERNEL_SIZE + j] = embossValues[i * FIXED_KERNEL_SIZE + j];
-        }
-    }
-
-    return mx;
-}
-
-float* colorShiftM() {
-    float* mx = newQuadMatrix(5);
-    float colorShiftValues[] = {
-        -2, -1, 0, 1, 2,
-        -2, -1, 0, 1, 2,
-        -2, -1, 0, 1, 2,
-        -2, -1, 0, 1, 2,
-        -2, -1, 0, 1, 2
-    };
-
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            mx[i * 5 + j] = colorShiftValues[i * 5 + j];
         }
     }
 
