@@ -12,15 +12,18 @@
 #include "../include/utils.h"
 #include "../include/types.h"
 
+#define PATH "assets"
+#define FILE "twin-towers"
 
 int main() {
-    char* img = "assets/mario.png";
+    char* imgPath[256];
+    sprintf(imgPath, "%s/%s.png", PATH, FILE);
     MatrixH Convo;
     ImgH Image;
     defineMatrix(&Convo, &Image);   // escolha do filtro
 
-    Image.data = stbi_load(img, &Image.w, &Image.h, &Image.c, 0);   // pega imagem
-    if (!Image.data) return printf("Não foi encontrada a imagem %s\n", img);
+    Image.data = stbi_load(imgPath, &Image.w, &Image.h, &Image.c, 0);   // pega imagem
+    if (!Image.data) return printf("Não foi encontrada a imagem %s\n", imgPath);
 
     int buffer = ((Image.w + 2 * Image.pS) * (Image.h + 2 * Image.pS)) * Image.c;
     printf("image buffer size: %d\n", buffer);
@@ -36,11 +39,11 @@ int main() {
     printf("tempo de execução: %f\n", tempo_execucao);
 
 
-
-    stbi_write_png("saida.png", Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);  // salva saída
+    sprintf(imgPath, "out/%s-saida.png", FILE);
+    stbi_write_png(imgPath, Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);  // salva saída
     printf("Imagem criada com sucesso\n");
 
-    if (Convo.filter > ColorShift)
+    if (Convo.M)
         free(Convo.M);  // libera alocações
     Image.kt ? stbi_image_free(Image.data) : free(Image.data);
 

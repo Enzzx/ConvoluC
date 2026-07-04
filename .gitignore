@@ -3,6 +3,8 @@ ConvoluC
 Debug
 x64
 .vs
+assets
+out
 
 # ignoring VS files
 *.slnx

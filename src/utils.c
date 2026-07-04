@@ -44,12 +44,12 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
     }
     printf("\nEscolha um filtro: ");
 
-    scanf_s("%d", &filterI);
+    scanf("%d", &filterI);
     handler->filter = filterI;
 
     if (handler->filter > Identity) {
         printf("\nSelecione o tamanho do kernel: ");
-        scanf_s("%d", &handler->size);
+        scanf("%d", &handler->size);
 
         if (handler->size > 100)
             return printf("\nQuer fritar a CPU paezao?!!");
@@ -62,14 +62,14 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         handler->M = 1;
         handler->size = 1;
         printf("\nEscolha o tamanho de desvio: ");
-        scanf_s("%d", &handler->size);
+        scanf("%d", &handler->size);
         break;
     case NegativeColor:
-        handler->M = 1;
+        handler->M = 0;
         handler->size = 1;
         break;
     case Greyscale:
-        handler->M = 1;
+        handler->M = 0;
         handler->size = 1;
         break;
 
@@ -86,7 +86,7 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         handler->size = FIXED_KERNEL_SIZE;
         break;
     case Identity:
-        handler->M = 1;
+        handler->M = 0;
         handler->size = 1;
         break;
 
@@ -97,10 +97,10 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         handler->M = uniformM(handler->size);
         break;
     case MotionBlur:
-        handler->M;
+        handler->M = 0;
         break;
     case Sharpen:
-        handler->M;
+        handler->M = blurM(handler->size);
         break;
     default:
         break;
@@ -222,7 +222,7 @@ float* motionBlurM(int size) {
     int half = (size + 1) / 2;
 
     for (int i = 0; i < size; i++) {
-        mx[half * size + i] = 1.0;
+        mx[half * size + i] = 1.0 / size;
     }
 
     return mx;
