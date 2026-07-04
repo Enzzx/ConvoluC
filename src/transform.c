@@ -34,47 +34,6 @@ void paddImage(ImgH* H, int mSize) {
 }
 
 
-void convoluteImg(ImgH* img, MatrixH* kernel) {
-	float maxVal = 0;
-	unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
-
-	int fullWlen = img->w * img->c;
-	int i;
-
-#pragma omp parallel for schedule(static) private(i) reduction(max: maxVal)
-	for (i = img->pS; i < img->h - img->pS; i++) {
-		for (int j = img->pS * img->c; j < (img->w - img->pS) * img->c; j += img->c) {
-			int pixI = i * fullWlen + j;
-
-			float pMaxVal = applicateKernelP(img, kernel, pixI, &newMatrix[pixI]);
-			if (pMaxVal > maxVal) maxVal = pMaxVal;
-		}
-	}
-
-	/*if (kernel->filter == LaplacianEdge) {
-		// tá quebrando por algum motivo
-		normalize(newMatrix, img->w, img->h, img->c, maxVal);
-	}*/
-
-	swapImgRef(img, newMatrix, 0);
-}
-
-
-static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* nM) {
-	switch (k->filter) {
-		case ColorShift:    return appColorShift(i, k, p, nM);
-		case NegativeColor:	return appNegativeColor(i, p, nM);
-		case Greyscale:		return appGreyScale(i, p, nM);
-		case Identity:		return;
-		case SobelEdge:     return appSobel(i, p, nM);
-		case LaplacianEdge: return appLaplace(i, k, p, nM);
-		case Emboss:        return appEmboss(i, p, nM);
-		case MotionBlur:    return appMotionBlur(i, k, p, nM);
-		case Sharpen:       return appSharpen(i, k, p, nM);
-		default:            return appDefault(i, k, p, nM);
-	}
-}
-
 static inline float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
 	int channels = ImgH->c;
 	int pixelsShift = MatrixH->size * ImgH->c;
@@ -299,4 +258,46 @@ static inline float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned
 	}
 
 	return maxVal;
+}
+
+
+static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* nM) {
+	switch (k->filter) {
+	case ColorShift:    return appColorShift(i, k, p, nM);
+	case NegativeColor:	return appNegativeColor(i, p, nM);
+	case Greyscale:		return appGreyScale(i, p, nM);
+	case Identity:		return;
+	case SobelEdge:     return appSobel(i, p, nM);
+	case LaplacianEdge: return appLaplace(i, k, p, nM);
+	case Emboss:        return appEmboss(i, p, nM);
+	case MotionBlur:    return appMotionBlur(i, k, p, nM);
+	case Sharpen:       return appSharpen(i, k, p, nM);
+	default:            return appDefault(i, k, p, nM);
+	}
+}
+
+
+void convoluteImg(ImgH* img, MatrixH* kernel) {
+	float maxVal = 0;
+	unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
+
+	int fullWlen = img->w * img->c;
+	int i;
+
+#pragma omp parallel for schedule(static) private(i) reduction(max: maxVal)
+	for (i = img->pS; i < img->h - img->pS; i++) {
+		for (int j = img->pS * img->c; j < (img->w - img->pS) * img->c; j += img->c) {
+			int pixI = i * fullWlen + j;
+
+			float pMaxVal = applicateKernelP(img, kernel, pixI, &newMatrix[pixI]);
+			if (pMaxVal > maxVal) maxVal = pMaxVal;
+		}
+	}
+
+	/*if (kernel->filter == LaplacianEdge) {
+		// tá quebrando por algum motivo
+		normalize(newMatrix, img->w, img->h, img->c, maxVal);
+	}*/
+
+	swapImgRef(img, newMatrix, 0);
 }

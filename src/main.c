@@ -16,7 +16,7 @@
 #define FILE "twin-towers"
 
 int main() {
-    char* imgPath[256];
+    char imgPath[256];
     sprintf(imgPath, "%s/%s.png", PATH, FILE);
     MatrixH Convo;
     ImgH Image;
@@ -39,7 +39,7 @@ int main() {
     printf("tempo de execução: %f\n", tempo_execucao);
 
 
-    sprintf(imgPath, "out/%s-saida.png", FILE);
+    sprintf(imgPath, "%s-saida.png", FILE);
     stbi_write_png(imgPath, Image.w, Image.h, Image.c, Image.data, Image.w * Image.c);  // salva saída
     printf("Imagem criada com sucesso\n");
 

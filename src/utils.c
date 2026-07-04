@@ -52,7 +52,8 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         scanf("%d", &handler->size);
 
         if (handler->size > 100)
-            return printf("\nQuer fritar a CPU paezao?!!");
+            printf("\nQuer fritar a CPU paezao?!!");
+            return;
 
         if (handler->size % 2 == 0) handler->size++;
     }

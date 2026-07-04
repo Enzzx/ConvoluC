@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O3 -fopenmp
-LDFLAGS = -lm -fopenmp
+CFLAGS = -Wall -Wextra -O3 -fopenmp -mthreads
+LDFLAGS = -fopenmp -mthreads
 
 SRCS = src/main.c src/transform.c src/utils.c
 OBJS = $(SRCS:.c=.o)
