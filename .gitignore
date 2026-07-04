@@ -9,6 +9,7 @@ out
 # ignoring VS files
 *.slnx
 *.vcxproj*
+*.o
 
 
-saida.png
+*saida.png
