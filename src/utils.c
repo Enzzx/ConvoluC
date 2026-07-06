@@ -60,17 +60,17 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
 
     switch (handler->filter) {
     case ColorShift:
-        handler->M = 1;
+        handler->M = (float*)1;
         handler->size = 1;
         printf("\nEscolha o tamanho de desvio: ");
         scanf("%d", &handler->size);
         break;
     case NegativeColor:
-        handler->M = 0;
+        handler->M = (float*)1;
         handler->size = 1;
         break;
     case Greyscale:
-        handler->M = 0;
+        handler->M = (float*)1;
         handler->size = 1;
         break;
 

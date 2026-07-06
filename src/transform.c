@@ -36,13 +36,13 @@ void paddImage(ImgH* H, int mSize) {
 
 static inline float appColorShift(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
 	int channels = ImgH->c;
-	int pixelsShift = MatrixH->size * ImgH->c;
+	int pixelsShift = MatrixH->size * channels;
 
 	imgPixel[0] = ImgH->data[point - pixelsShift];
 	imgPixel[1] = ImgH->data[point + 1];
 	imgPixel[2] = ImgH->data[point + pixelsShift];
 
-	for (int i = 3; i < ImgH->c; i++) {
+	for (int i = 3; i < channels; i++) {
 		imgPixel[i] = ImgH->data[point + i];
 	}
 
@@ -191,7 +191,7 @@ static inline float appMotionBlur(ImgH* ImgH, MatrixH* MatrixH, int point, unsig
 	return 255;
 }
 
-static inline float appSharpen(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
+static inline float appSharpen(ImgH* ImgH, int point, unsigned char* imgPixel) {
 	float newVal[maxChannels] = { 0 };
 	float maxVal = 0;
 
@@ -266,12 +266,12 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
 	case ColorShift:    return appColorShift(i, k, p, nM);
 	case NegativeColor:	return appNegativeColor(i, p, nM);
 	case Greyscale:		return appGreyScale(i, p, nM);
-	case Identity:		return;
+	case Identity:		return 0.0;
 	case SobelEdge:     return appSobel(i, p, nM);
 	case LaplacianEdge: return appLaplace(i, k, p, nM);
 	case Emboss:        return appEmboss(i, p, nM);
 	case MotionBlur:    return appMotionBlur(i, k, p, nM);
-	case Sharpen:       return appSharpen(i, k, p, nM);
+	case Sharpen:       return appSharpen(i, p, nM);
 	default:            return appDefault(i, k, p, nM);
 	}
 }

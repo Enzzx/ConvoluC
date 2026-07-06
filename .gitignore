@@ -4,12 +4,11 @@ Debug
 x64
 .vs
 assets
-out
+*.exe
+*saida.png
 
 # ignoring VS files
 *.slnx
 *.vcxproj*
 *.o
 
-
-*saida.png
