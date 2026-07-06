@@ -1,6 +1,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#define EXPORT __declspec(dllexport)
+#define maxChannels 4
+
 #define FIXED_KERNEL_SIZE 3
 
 typedef enum {

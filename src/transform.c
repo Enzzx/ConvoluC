@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <omp.h>
-#include "../include/stb_image.h"
 #include "../include/transform.h"
 #include "../include/utils.h"
 #include "../include/types.h"
 
-#define maxChannels 4
+/* 
+EXPORT int sum(int a, int b) {
+	return a + b;
+} */
 
 void paddImage(ImgH* H, int mSize) {
 	int newBuffer = (((H->w) + 2 * H->pS) * ((H->h) + 2 * H->pS)) * H->c;
@@ -277,7 +279,7 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
 }
 
 
-void convoluteImg(ImgH* img, MatrixH* kernel) {
+EXPORT void convoluteImg(ImgH* img, MatrixH* kernel) {
 	float maxVal = 0;
 	unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
 
