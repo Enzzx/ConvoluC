@@ -23,6 +23,8 @@ There are 11 filters implemented so far, they are:
 
 `make run` to run
 
+`make lib` to create .dll
+
 `make clean` to clean
 
 shoud works fine to both windows and linux.

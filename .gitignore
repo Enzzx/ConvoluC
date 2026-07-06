@@ -5,6 +5,7 @@ x64
 .vs
 assets
 *.exe
+*.dll
 *saida.png
 
 # ignoring VS files
