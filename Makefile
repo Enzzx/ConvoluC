@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O3 -fopenmp -mthreads
+CFLAGS = -Wall -Wextra -O3 -fopenmp -std=gnu99 -D_CRT_SECURE_NO_WARNINGS -DSTBIW_NOTUSED
 LDFLAGS = -fopenmp -mthreads
 
 SRCS = src/main.c src/transform.c src/utils.c
@@ -16,6 +16,9 @@ else
 endif
 
 all: image_processor$(EXE)
+
+lib: $(OBJS)
+	$(CC) $(CFLAGS) -shared -o filtro.dll $(OBJS) $(LDFLAGS)
 
 image_processor.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o image_processor.exe $(OBJS) $(LDFLAGS)
