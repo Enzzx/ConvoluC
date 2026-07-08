@@ -168,6 +168,13 @@ static inline float appEmboss(ImgH* ImgH, int point, unsigned char* imgPixel) {
 	return maxVal;
 }
 
+static inline float appIdentity(ImgH* ImgH, int point, unsigned char* imgPixel) {
+	for (int k = 0; k < ImgH->c; k++) {
+		imgPixel[k] = ImgH->data[point + k];
+	}
+	return 255;
+}
+
 static inline float appMotionBlur(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
 	float newVal[maxChannels] = { 0 };
 	int channels = ImgH->c;
@@ -264,7 +271,7 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
 	case ColorShift:    return appColorShift(i, k, p, nM);
 	case NegativeColor:	return appNegativeColor(i, p, nM);
 	case Greyscale:		return appGreyScale(i, p, nM);
-	case Identity:		return 0.0;
+	case Identity:		return appIdentity(i, p, nM);
 	case SobelEdge:     return appSobel(i, p, nM);
 	case LaplacianEdge: return appLaplace(i, k, p, nM);
 	case Emboss:        return appEmboss(i, p, nM);

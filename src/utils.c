@@ -22,11 +22,9 @@ EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
         break;
     case NegativeColor:
         handler->M = (float*)1;
-        handler->size = 1;
         break;
     case Greyscale:
         handler->M = (float*)1;
-        handler->size = 1;
         break;
 
     case SobelEdge:
@@ -43,7 +41,6 @@ EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
         break;
     case Identity:
         handler->M = 0;
-        handler->size = 1;
         break;
 
     case Blur:
