@@ -1,30 +1,7 @@
-# ConvoluC
-This project is a simple CLI tool developed in C using stb_image "lib" to manipulate png images for filter application.
-It works applicating a matrix (kernel) to each pixel of a image buffer, which is the process of convolution, it also use omp for parallelise the convolution process.
+# ConvoluC (dll version)
+This version of [ConvoluC](www.github.com/Enzzx/ConvoluC) serves as a lib to be used on [ConvoluCam](www.github.com/Enzzx/ConvoluC) project. It has slightly changes from main branch, changing some functions and deleting the main file, as long the needed funcs are being exposed on the dll (defineMatrix and convoluteImg).
 
-## Filters
-A filter is simply a some order pre-defined matrix who is applied to a pixel and its neighbors, this matrix is also called as kernel on image processing. The result on the image dependes of the properties of the kernel (his order, values, etc), and the convolution time, just like the result, is highly variable.
-
-There are 11 filters implemented so far, they are:
-- ColorShift
-- NegativeColor
-- GreyScale
-- SobelEdge
-- LaplacianEdge
-- Emboss
-- Identity
-- Blur
-- Uniform
-- MotionBlur
-- Sharpen
-
-## How to run
-`make` to make
-
-`make run` to run
-
-`make lib` to create .dll
+## Setup
+`make` to create .dll
 
 `make clean` to clean
-
-shoud works fine to both windows and linux.
