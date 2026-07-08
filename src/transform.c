@@ -6,10 +6,6 @@
 #include "../include/utils.h"
 #include "../include/types.h"
 
-/* 
-EXPORT int sum(int a, int b) {
-	return a + b;
-} */
 
 void paddImage(ImgH* H, int mSize) {
 	int newBuffer = (((H->w) + 2 * H->pS) * ((H->h) + 2 * H->pS)) * H->c;
@@ -286,11 +282,11 @@ EXPORT void convoluteImg(ImgH* img, MatrixH* kernel) {
 	int fullWlen = img->w * img->c;
 	int i;
 
-#pragma omp parallel for schedule(static) private(i) reduction(max: maxVal)
+	#pragma omp parallel for schedule(static) private(i) reduction(max: maxVal)
 	for (i = img->pS; i < img->h - img->pS; i++) {
 		for (int j = img->pS * img->c; j < (img->w - img->pS) * img->c; j += img->c) {
 			int pixI = i * fullWlen + j;
-
+			
 			float pMaxVal = applicateKernelP(img, kernel, pixI, &newMatrix[pixI]);
 			if (pMaxVal > maxVal) maxVal = pMaxVal;
 		}

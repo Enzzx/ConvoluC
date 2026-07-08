@@ -15,60 +15,15 @@ void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
         return;
     }
 
-    if (handler->kt) {
-        stbi_image_free(handler->data);
-        handler->kt = posterior;
-    }
-    else {
-        free(handler->data);
-    }
     handler->data = newData;
 }
 
 
-EXPORT void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
-    int filterI;
-    
-    const char* filterNames[] = {
-        "ColorShift",
-        "NegativeColor",
-        "GreyScale",
-        "SobelEdge",
-        "LaplacianEdge",
-        "Emboss",
-        "Identity",
-        "Blur",
-        "Uniform",
-        "MotionBlur",
-        "Sharpen"
-    };
-
-    for (int i = 0; i < 11; i++) {
-        printf("(%d) %s\t\t", i, filterNames[i]);
-        if (i % 4 == 3) printf("\n");
-    }
-    printf("\nEscolha um filtro: ");
-
-    scanf("%d", &filterI);
-    handler->filter = filterI;
-
-    if (handler->filter > Identity) {
-        printf("\nSelecione o tamanho do kernel: ");
-        scanf("%d", &handler->size);
-
-        if (handler->size > 100)
-            printf("\nQuer fritar a CPU paezao?!!");
-            return;
-
-        if (handler->size % 2 == 0) handler->size++;
-    }
+EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
 
     switch (handler->filter) {
     case ColorShift:
         handler->M = (float*)1;
-        handler->size = 1;
-        printf("\nEscolha o tamanho de desvio: ");
-        scanf("%d", &handler->size);
         break;
     case NegativeColor:
         handler->M = (float*)1;
