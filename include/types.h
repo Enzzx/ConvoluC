@@ -1,7 +1,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define EXPORT __declspec(dllexport)
+#if defined(_WIN32)
+	#define EXPORT __declspec(dllexport)
+#else
+	#define EXPORT
+#endif
 #define maxChannels 4
 
 #define FIXED_KERNEL_SIZE 3
