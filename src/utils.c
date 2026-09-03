@@ -12,12 +12,12 @@ void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
 
     if (handler->kt) {
         stbi_image_free(handler->data);
-        handler->kt = posterior;
     }
     else {
         free(handler->data);
     }
     handler->data = newData;
+    handler->kt = posterior;
 }
 
 
@@ -51,26 +51,27 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         printf("\nSelecione o tamanho do kernel: ");
         scanf("%d", &handler->size);
 
-        if (handler->size > 100)
+        if (handler->size > 100) {
             printf("\nQuer fritar a CPU paezao?!!");
             return;
+        }
 
         if (handler->size % 2 == 0) handler->size++;
     }
 
     switch (handler->filter) {
     case ColorShift:
-        handler->M = (float*)1;
+        handler->M = 0;
         handler->size = 1;
         printf("\nEscolha o tamanho de desvio: ");
         scanf("%d", &handler->size);
         break;
     case NegativeColor:
-        handler->M = (float*)1;
+        handler->M = 0;
         handler->size = 1;
         break;
     case Greyscale:
-        handler->M = (float*)1;
+        handler->M = 0;
         handler->size = 1;
         break;
 

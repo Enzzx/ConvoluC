@@ -13,7 +13,7 @@
 #include "../include/types.h"
 
 #define PATH "assets"
-#define FILE "twin-towers"
+#define FILE "taj-orig"
 
 int main() {
     char imgPath[256];
@@ -24,6 +24,7 @@ int main() {
 
     Image.data = stbi_load(imgPath, &Image.w, &Image.h, &Image.c, 0);   // pega imagem
     if (!Image.data) return printf("Não foi encontrada a imagem %s\n", imgPath);
+    Image.kt = 1;
 
     int buffer = ((Image.w + 2 * Image.pS) * (Image.h + 2 * Image.pS)) * Image.c;
     printf("image buffer size: %d\n", buffer);

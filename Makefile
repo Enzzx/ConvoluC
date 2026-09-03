@@ -1,6 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O3 -fopenmp -mthreads
-LDFLAGS = -fopenmp -mthreads
+ifdef COMSPEC
+	CFLAGS = -Wall -Wextra -O3 -fopenmp -mthreads
+	LDFLAGS = -fopenmp -mthreads -lm
+else
+	CFLAGS = -Wall -Wextra -O3 -fopenmp -pthread
+	LDFLAGS = -fopenmp -pthread -lm
+endif
 
 SRCS = src/main.c src/transform.c src/utils.c
 OBJS = $(SRCS:.c=.o)
