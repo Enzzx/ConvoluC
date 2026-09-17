@@ -32,13 +32,14 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         "LaplacianEdge",
         "Emboss",
         "Identity",
+        "Erosion",
         "Blur",
         "Uniform",
         "MotionBlur",
         "Sharpen"
     };
 
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 12; i++) {
         printf("(%d) %s\t\t", i, filterNames[i]);
         if (i % 4 == 3) printf("\n");
     }
@@ -47,7 +48,7 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
     scanf("%d", &filterI);
     handler->filter = filterI;
 
-    if (handler->filter > Identity) {
+    if (handler->filter > Erosion) {
         printf("\nSelecione o tamanho do kernel: ");
         scanf("%d", &handler->size);
 
@@ -92,6 +93,10 @@ void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
         handler->size = 1;
         break;
 
+    case Erosion:
+        handler->M = 0;
+        handler->size = 11;
+        break;
     case Blur:
         handler->M = blurM(handler->size);
         break;

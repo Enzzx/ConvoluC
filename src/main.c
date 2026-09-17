@@ -13,7 +13,7 @@
 #include "../include/types.h"
 
 #define PATH "assets"
-#define FILE "taj-orig"
+#define FILE "twin-towers"
 
 int main() {
     char imgPath[256];

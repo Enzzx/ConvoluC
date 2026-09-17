@@ -13,9 +13,10 @@ typedef enum {
 	SobelEdge, // sobel edge detection
 	LaplacianEdge, // laplacian edge detection
 	Emboss, // emboss image
-	Identity, // self value (no change)
+  Identity, // self value (no change)
 
 	// - - - free size filters - - - 
+  Erosion, // erose image
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
 	MotionBlur, // blur with motion effect

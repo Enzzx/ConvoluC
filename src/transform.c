@@ -74,6 +74,33 @@ static inline float appGreyScale(ImgH* ImgH, int point, unsigned char* imgPixel)
 	return 255;
 }
 
+static inline float appErosion(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
+  float minVal[maxChannels];
+  int channels = ImgH->c;
+  for (int k = 0; k < channels; k++) minVal[k] = 255;
+	int size = MatrixH->size;
+	int width = ImgH->w;
+	int half = (size + 1) / 2;
+
+	for (int i = 0; i < size; i++) {
+		int offsetY = (i + 1 - half) * width * channels;
+
+		for (int j = 0; j < size; j++) {
+			int offsetX = (j + 1 - half) * channels;
+			int pixBase = point + offsetY + offsetX;
+	
+      for (int k = 0; k < channels; k++) {
+        minVal[k] = ImgH->data[pixBase+k] < minVal[k] ? ImgH->data[pixBase+k] : minVal[k];
+      }
+		}
+	}
+  
+  for (int k = 0; k < channels; k++) {
+    imgPixel[k] = minVal[k];
+  }
+	return 255;
+}
+
 static inline float appSobel(ImgH* ImgH, int point, unsigned char* imgPixel) {
 	float newVal[maxChannels] = { 0 };
 	float newValT[maxChannels] = { 0 };
@@ -270,6 +297,7 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
 	case SobelEdge:     return appSobel(i, p, nM);
 	case LaplacianEdge: return appLaplace(i, k, p, nM);
 	case Emboss:        return appEmboss(i, p, nM);
+  case Erosion:       return appErosion(i, k, p, nM);
 	case MotionBlur:    return appMotionBlur(i, k, p, nM);
 	case Sharpen:       return appSharpen(i, p, nM);
 	default:            return appDefault(i, k, p, nM);
