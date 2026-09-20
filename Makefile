@@ -1,44 +1,47 @@
 CC = gcc
-ifdef COMSPEC
-	CFLAGS = -Wall -Wextra -O3 -fopenmp -mthreads
-	LDFLAGS = -fopenmp -mthreads -lm
-else
-	CFLAGS = -Wall -Wextra -O3 -fopenmp -pthread
-	LDFLAGS = -fopenmp -pthread -lm
-endif
 
-SRCS = src/main.c src/transform.c src/utils.c
-OBJS = $(SRCS:.c=.o)
-
-ifdef COMSPEC
+ifeq ($(OS),Windows_NT)
     RM = del /q
     EXE = .exe
+    TARGET_LIB = image_processor.dll
     RUN_CMD = image_processor.exe
 else
     RM = rm -f
     EXE =
+    TARGET_LIB = image_processor.so
     RUN_CMD = ./image_processor
 endif
 
-all: image_processor$(EXE)
+CLI_CFLAGS = -Wall -Wextra -O3 -fopenmp $(if $(filter Windows_NT,$(OS)),-mthreads,-pthread)
+CLI_LDFLAGS = -fopenmp $(if $(filter Windows_NT,$(OS)),-mthreads,-pthread) -lm
+CLI_SRCS = src/main.c src/transform.c src/utils.c src/clio.c
+CLI_OBJS = $(CLI_SRCS:.c=.o)
+TARGET_CLI = image_processor$(EXE)
 
-image_processor.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o image_processor.exe $(OBJS) $(LDFLAGS)
+LIB_CFLAGS = -Wall -Wextra -O3 -fopenmp -fPIC -std=gnu99 -D_CRT_SECURE_NO_WARNINGS -DSTBIW_NOTUSED
+LIB_LDFLAGS = -fopenmp
+LIB_SRCS = src/transform.c src/utils.c
+LIB_OBJS = $(LIB_SRCS:.c=.o)
 
-image_processor: $(OBJS)
-	$(CC) $(CFLAGS) -o image_processor $(OBJS) $(LDFLAGS)
+all: cli lib
+
+cli: $(CLI_OBJS)
+	$(CC) $(CLI_CFLAGS) -o $(TARGET_CLI) $(CLI_OBJS) $(CLI_LDFLAGS)
+
+lib: $(LIB_OBJS)
+	$(CC) $(LIB_CFLAGS) -shared -o $(TARGET_LIB) $(LIB_OBJS) $(LIB_LDFLAGS)
 
 src/%.o: src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CLI_CFLAGS) -c $< -o $@
 
 clean:
-ifdef COMSPEC
-	$(RM) src\*.o image_processor.exe
+ifeq ($(OS),Windows_NT)
+	$(RM) src\*.o $(TARGET_CLI) $(TARGET_LIB)
 else
-	$(RM) src/*.o image_processor
+	$(RM) src/*.o $(TARGET_CLI) $(TARGET_LIB)
 endif
 
-run:
+run: cli
 	$(RUN_CMD)
 
-.PHONY: all clean run
+.PHONY: all cli lib clean run

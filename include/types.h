@@ -1,6 +1,13 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#if defined(_WIN32)
+	#define EXPORT __declspec(dllexport)
+#else
+	#define EXPORT
+#endif
+#define maxChannels 4
+
 #define FIXED_KERNEL_SIZE 3
 
 typedef enum {
@@ -13,7 +20,7 @@ typedef enum {
 	SobelEdge, // sobel edge detection
 	LaplacianEdge, // laplacian edge detection
 	Emboss, // emboss image
-  Identity, // self value (no change)
+	Identity, // self value (no change)
 
 	// - - - free size filters - - - 
   Erosion, // erode image

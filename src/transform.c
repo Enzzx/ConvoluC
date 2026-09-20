@@ -2,12 +2,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <omp.h>
-#include "../include/stb_image.h"
 #include "../include/transform.h"
 #include "../include/utils.h"
 #include "../include/types.h"
 
-#define maxChannels 4
 
 void paddImage(ImgH* H, int mSize) {
 	int newBuffer = (((H->w) + 2 * H->pS) * ((H->h) + 2 * H->pS)) * H->c;
@@ -30,7 +28,7 @@ void paddImage(ImgH* H, int mSize) {
 	H->w += 2 * H->pS;
 	H->h += 2 * H->pS;
 
-	swapImgRef(H, newData, 0);
+	//swapImgRef(H, newData, 0);
 }
 
 
@@ -74,10 +72,11 @@ static inline float appGreyScale(ImgH* ImgH, int point, unsigned char* imgPixel)
 	return 255;
 }
 
-static inline float appErosion(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
-  float minVal[maxChannels];
-  int channels = ImgH->c;
-  for (int k = 0; k < channels; k++) minVal[k] = 255;
+static inline float appErosion(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned char *imgPixel) {
+	int rmColor[maxChannels];
+	int channels = ImgH->c;
+	for (int k = 0; k < channels; k++)
+		rmColor[k] = 0;
 	int size = MatrixH->size;
 	int width = ImgH->w;
 	int half = (size + 1) / 2;
@@ -88,16 +87,16 @@ static inline float appErosion(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned
 		for (int j = 0; j < size; j++) {
 			int offsetX = (j + 1 - half) * channels;
 			int pixBase = point + offsetY + offsetX;
-	
-      for (int k = 0; k < channels; k++) {
-        minVal[k] = ImgH->data[pixBase+k] < minVal[k] ? ImgH->data[pixBase+k] : minVal[k];
-      }
+
+			for (int k = 0; k < channels; k++) {
+				rmColor[k] = ImgH->data[pixBase + k] == 0 ? 1 : 0;
+			}
 		}
 	}
-  
-  for (int k = 0; k < channels; k++) {
-    imgPixel[k] = minVal[k];
-  }
+
+	for (int k = 0; k < channels; k++) {
+		imgPixel[k] = rmColor[k] ? 0 : ImgH->data[point+k];
+	}
 	return 255;
 }
 
@@ -382,7 +381,7 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
 }
 
 
-void convoluteImg(ImgH* img, MatrixH* kernel) {
+unsigned char* convoluteImg(ImgH* img, MatrixH* kernel) {
 	float maxVal = 0;
 	unsigned char* newMatrix = (unsigned char*)malloc(sizeof(unsigned char) * img->w * img->h * img->c);
 
@@ -404,5 +403,5 @@ void convoluteImg(ImgH* img, MatrixH* kernel) {
 		normalize(newMatrix, img->w, img->h, img->c, maxVal);
 	}*/
 
-	swapImgRef(img, newMatrix, 0);
+	return newMatrix;
 }
