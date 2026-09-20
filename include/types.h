@@ -23,11 +23,12 @@ typedef enum {
 	Identity, // self value (no change)
 
 	// - - - free size filters - - - 
-  	Erosion, // erose image
+  Erosion, // erode image
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
 	MotionBlur, // blur with motion effect
 	Sharpen, // sharp image
+  KuwaharaFilter, // gives oil painting feel to image
 } FilterType;
 
 typedef struct {
@@ -35,7 +36,7 @@ typedef struct {
     int h; // height
     int c; // channel
     int pS; // paddingSize
-	int kt; // keepTrack
+  	int kt; // keepTrack
     unsigned char* data; // image buffer
 } ImgH;
 

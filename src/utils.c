@@ -66,10 +66,11 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         "Blur",
         "Uniform",
         "MotionBlur",
-        "Sharpen"
+        "Sharpen",
+        "KuwaharaFilter"
     };
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 13; i++) {
         printf("(%d) %s\t\t", i, filterNames[i]);
         if (i % 4 == 3) printf("\n");
     }
@@ -139,6 +140,9 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
     case Sharpen:
         handler->M = blurM(handler->size);
         break;
+    case KuwaharaFilter:
+        handler->M = 0;
+        break;
     default:
         break;
     }
@@ -164,6 +168,28 @@ float gaussianFunc(int x, int y, int sigma, int weight) {
     double result = pow(e, -expoent);
 
     return result;
+}
+
+float stdDeviation(float data[], int n /*array size*/) {
+  if(n <= 0) return 0.0f;
+
+  float mean = 0, sum = 0, squaredDiffSum = 0, deviation = 0;
+  
+  //find mean value
+  for(int i = 0; i < n; i++){
+    sum += data[i];
+  }
+
+  mean = sum / n;
+  
+  for(int i = 0; i < n; i++){
+    float deltaMean = data[i] - mean; //diference between each value and mean value
+    squaredDiffSum += deltaMean * deltaMean; //summation of the difference squared
+  }
+
+  deviation = sqrtf(squaredDiffSum / n);
+
+  return deviation;
 }
 
 float* newQuadMatrix(int size) {

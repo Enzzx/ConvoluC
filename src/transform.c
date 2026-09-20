@@ -251,6 +251,82 @@ static inline float appSharpen(ImgH* ImgH, int point, unsigned char* imgPixel) {
 	return maxVal;
 }
 
+static inline float applyKuwahara(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel){
+  /*
+   * the Kuwahara filter works by taking each kernel
+   * and separating it into 4 quadrants.
+   * we then calculate each quadrant mean value and
+   * standard deviation. we then set the pixel value
+   * with the mean from the quadrant with least standard
+   * deviation.
+   *
+   * https://en.wikipedia.org/wiki/Kuwahara_filter
+   */
+
+  int channels = ImgH->c; //r,g,b,a
+  int wLen = ImgH->w * channels; //as the img is a 1D vector, this is used to go to next line
+
+  int kernelSize = MatrixH->size;
+  int kernelCenter = (kernelSize + 1) / 2;
+
+  //dinamically creates an array to store quadrants' values.
+  int quadSize = kernelCenter * kernelCenter;
+  float* quadrantData = malloc(sizeof(float) * quadSize);
+
+  //each quadrant walks kernelCenter steps in a row/col direction,
+  //all 4 sharing the pixel itself (offset 0, center) as their corner
+  int rowSign[4] = { -1, -1, 1, 1 };
+  int colSign[4] = { -1, 1, -1, 1 };
+
+  float minVariance = -1;
+  float bestMean[maxChannels] = { 0 };
+
+  //for each quadrant
+  for (int q = 0; q < 4; q++) {
+    float meanCh[maxChannels] = { 0 };
+    float varianceSum = 0;
+
+    //for each channel
+    for (int k = 0; k < channels; k++) {
+      int index = 0;
+
+      //for each pixel (i,j) in a quadrant
+      for (int i = 0; i < kernelCenter; i++) {
+        int offsetY = rowSign[q] * i * wLen;
+
+        for (int j = 0; j < kernelCenter; j++) {
+          int offsetX = colSign[q] * j * channels;
+
+          //fills array with the quadrant values
+          quadrantData[index++] = (float)ImgH->data[point + offsetY + offsetX + k];
+        }
+      }
+
+      //mean value of a pixel for every channel
+      float sum = 0;
+      for (int n = 0; n < quadSize; n++) sum += quadrantData[n];
+      meanCh[k] = sum / quadSize;
+
+      varianceSum += stdDeviation(quadrantData, quadSize);
+    }
+
+    //sets mean value to be applied from quadrant with least deviation
+    if (minVariance < 0 || varianceSum < minVariance) {
+      minVariance = varianceSum;
+      for (int k = 0; k < channels; k++) bestMean[k] = meanCh[k];
+    }
+  }
+
+  //applies new pixel color
+  for (int k = 0; k < channels; k++) {
+    imgPixel[k] = (unsigned char)bestMean[k];
+  }
+
+  free(quadrantData);
+
+  return 255; //returns max possible value
+}
+
 static inline float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
 	float newVal[maxChannels] = { 0 };
 	float maxVal = 0;
@@ -299,6 +375,7 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
   case Erosion:       return appErosion(i, k, p, nM);
 	case MotionBlur:    return appMotionBlur(i, k, p, nM);
 	case Sharpen:       return appSharpen(i, p, nM);
+  case KuwaharaFilter: return applyKuwahara(i, k, p, nM);
 	default:            return appDefault(i, k, p, nM);
 	}
 }
