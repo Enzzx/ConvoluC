@@ -3,6 +3,7 @@ ConvoluC
 Debug
 x64
 .vs
+.vscode
 assets
 *.exe
 image_processor
@@ -12,4 +13,5 @@ image_processor
 *.slnx
 *.vcxproj*
 *.o
-
+*.dll
+*.so

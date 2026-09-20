@@ -11,6 +11,7 @@
 #include "../include/transform.h"
 #include "../include/utils.h"
 #include "../include/types.h"
+#include "../include/clio.h"
 
 #define PATH "assets"
 #define FILE "twin-towers"
@@ -20,7 +21,7 @@ int main() {
     sprintf(imgPath, "%s/%s.png", PATH, FILE);
     MatrixH Convo;
     ImgH Image;
-    defineMatrix(&Convo, &Image);   // escolha do filtro
+    configMatrix(&Image, &Convo);   // escolha do filtro
 
     Image.data = stbi_load(imgPath, &Image.w, &Image.h, &Image.c, 0);   // pega imagem
     if (!Image.data) return printf("Não foi encontrada a imagem %s\n", imgPath);
@@ -33,7 +34,8 @@ int main() {
     clock_t clocki = clock();
 
     //paddImage(&Image, Convo.size);    // faz padding da imagem
-    convoluteImg(&Image, &Convo);   // aplica convolução na imagem
+    unsigned char* newImgBuffer = convoluteImg(&Image, &Convo);   // aplica convolução na imagem
+    swapImgRef(&Image, newImgBuffer, 0);
 
     clock_t clockf = clock();
     double tempo_execucao = (double)(clockf - clocki) / CLOCKS_PER_SEC;

@@ -4,24 +4,54 @@
 #include "../include/stb_image.h"
 
 
-void swapImgRef(ImgH* handler, unsigned char* newData, int posterior) {
-    if (!handler || !newData) {
-        printf("Erro ao receber dados para realizar swap de image buffer");
-        return;
+EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
+    switch (handler->filter) {
+    case ColorShift:
+        handler->M = (float*)1;
+        break;
+    case NegativeColor:
+        handler->M = (float*)1;
+        break;
+    case Greyscale:
+        handler->M = (float*)1;
+        break;
+
+    case SobelEdge:
+        handler->M = sobelM();
+        handler->size = FIXED_KERNEL_SIZE;
+        break;
+    case LaplacianEdge:
+        handler->M = laplaceM();
+        handler->size = FIXED_KERNEL_SIZE;
+        break;
+    case Emboss:
+        handler->M = embossM();
+        handler->size = FIXED_KERNEL_SIZE;
+        break;
+    case Identity:
+        handler->M = 0;
+        break;
+
+    case Blur:
+        handler->M = blurM(handler->size);
+        break;
+    case Uniform:
+        handler->M = uniformM(handler->size);
+        break;
+    case MotionBlur:
+        handler->M = 0;
+        break;
+    case Sharpen:
+        handler->M = blurM(handler->size);
+        break;
+    default:
+        break;
     }
 
-    if (handler->kt) {
-        stbi_image_free(handler->data);
-    }
-    else {
-        free(handler->data);
-    }
-    handler->data = newData;
-    handler->kt = posterior;
+    imgHandler->pS = (handler->size - 1) / 2;
 }
 
-
-void defineMatrix(MatrixH* handler, ImgH* imgHandler) {
+void configMatrix(ImgH* imgHandler, MatrixH* handler) {
     int filterI;
     
     const char* filterNames[] = {
