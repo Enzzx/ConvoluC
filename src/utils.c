@@ -78,7 +78,7 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
     scanf("%d", &filterI);
     handler->filter = filterI;
 
-    if (handler->filter > Erosion) {
+    if (handler->filter > Identity) {
         printf("\nSelecione o tamanho do kernel: ");
         scanf("%d", &handler->size);
 
@@ -125,7 +125,7 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
 
     case Erosion:
         handler->M = 0;
-        handler->size = 11;
+        handler->size = handler->size;
         break;
     case Blur:
         handler->M = blurM(handler->size);

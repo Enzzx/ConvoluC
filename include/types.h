@@ -23,7 +23,7 @@ typedef enum {
 	Identity, // self value (no change)
 
 	// - - - free size filters - - - 
-  Erosion, // erose image
+  	Erosion, // erose image
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
 	MotionBlur, // blur with motion effect

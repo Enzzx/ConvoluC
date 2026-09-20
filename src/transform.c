@@ -72,10 +72,11 @@ static inline float appGreyScale(ImgH* ImgH, int point, unsigned char* imgPixel)
 	return 255;
 }
 
-static inline float appErosion(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
-  float minVal[maxChannels];
-  int channels = ImgH->c;
-  for (int k = 0; k < channels; k++) minVal[k] = 255;
+static inline float appErosion(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned char *imgPixel) {
+	int rmColor[maxChannels];
+	int channels = ImgH->c;
+	for (int k = 0; k < channels; k++)
+		rmColor[k] = 0;
 	int size = MatrixH->size;
 	int width = ImgH->w;
 	int half = (size + 1) / 2;
@@ -86,16 +87,16 @@ static inline float appErosion(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned
 		for (int j = 0; j < size; j++) {
 			int offsetX = (j + 1 - half) * channels;
 			int pixBase = point + offsetY + offsetX;
-	
-      for (int k = 0; k < channels; k++) {
-        minVal[k] = ImgH->data[pixBase+k] < minVal[k] ? ImgH->data[pixBase+k] : minVal[k];
-      }
+
+			for (int k = 0; k < channels; k++) {
+				rmColor[k] = ImgH->data[pixBase + k] == 0 ? 1 : 0;
+			}
 		}
 	}
-  
-  for (int k = 0; k < channels; k++) {
-    imgPixel[k] = minVal[k];
-  }
+
+	for (int k = 0; k < channels; k++) {
+		imgPixel[k] = rmColor[k] ? 0 : ImgH->data[point+k];
+	}
 	return 255;
 }
 
