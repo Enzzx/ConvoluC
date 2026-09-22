@@ -35,6 +35,12 @@ EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
         handler->M = 0;
         break;
 
+    case Erosion:
+        handler->M = 0;
+        break;
+    case Dilation:
+        handler->M = 0;
+        break;
     case Blur:
         handler->M = blurM(handler->size);
         break;
@@ -46,6 +52,9 @@ EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
         break;
     case Sharpen:
         handler->M = blurM(handler->size);
+        break;
+    case KuwaharaFilter:
+        handler->M = 0;
         break;
     default:
         break;
@@ -66,6 +75,7 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         "Emboss",
         "Identity",
         "Erosion",
+        "Dilation",
         "Blur",
         "Uniform",
         "MotionBlur",
@@ -73,7 +83,7 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         "KuwaharaFilter"
     };
 
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 14; i++) {
         printf("(%d) %s\t\t", i, filterNames[i]);
         if (i % 4 == 3) printf("\n");
     }

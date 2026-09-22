@@ -24,6 +24,7 @@ typedef enum {
 
 	// - - - free size filters - - - 
   Erosion, // erode image
+  Dilation, // dilate image
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
 	MotionBlur, // blur with motion effect

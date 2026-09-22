@@ -89,13 +89,42 @@ static inline float appErosion(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned
 			int pixBase = point + offsetY + offsetX;
 
 			for (int k = 0; k < channels; k++) {
-				rmColor[k] = ImgH->data[pixBase + k] == 0 ? 1 : 0;
+				rmColor[k] = ImgH->data[pixBase + k] < 10 ? 1 : 0; //barely erode anythin on '== 0', so put 10 to more visible effect
 			}
 		}
 	}
 
 	for (int k = 0; k < channels; k++) {
 		imgPixel[k] = rmColor[k] ? 0 : ImgH->data[point+k];
+	}
+	return 255;
+}
+
+// instead of verifying the color channels maybe convert and analyze each pixel as hsv - for erosion and dilation
+static inline float appDilation(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned char *imgPixel) {
+	unsigned char rmColor[maxChannels];
+	int channels = ImgH->c;
+	for (int k = 0; k < channels; k++)
+	  rmColor[k] = 0;
+	int size = MatrixH->size;
+	int width = ImgH->w;
+	int half = (size + 1) / 2;
+
+	for (int i = 0; i < size; i++) {
+		int offsetY = (i + 1 - half) * width * channels;
+
+		for (int j = 0; j < size; j++) {
+			int offsetX = (j + 1 - half) * channels;
+			int pixBase = point + offsetY + offsetX;
+
+			for (int k = 0; k < channels; k++) {
+				rmColor[k] = ImgH->data[pixBase + k] > rmColor[k] ? ImgH->data[pixBase + k] : rmColor[k];
+			}
+		}
+	}
+
+	for (int k = 0; k < channels; k++) {
+		imgPixel[k] = rmColor[k];
 	}
 	return 255;
 }
@@ -373,6 +402,7 @@ static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* 
 	case LaplacianEdge: return appLaplace(i, k, p, nM);
 	case Emboss:        return appEmboss(i, p, nM);
   case Erosion:       return appErosion(i, k, p, nM);
+  case Dilation:       return appDilation(i, k, p, nM);
 	case MotionBlur:    return appMotionBlur(i, k, p, nM);
 	case Sharpen:       return appSharpen(i, p, nM);
   case KuwaharaFilter: return applyKuwahara(i, k, p, nM);

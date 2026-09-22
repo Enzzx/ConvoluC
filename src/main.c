@@ -14,7 +14,7 @@
 #include "../include/clio.h"
 
 #define PATH "assets"
-#define FILE "twin-towers"
+#define FILE "pixilized"
 
 int main() {
     char imgPath[256];
