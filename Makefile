@@ -12,7 +12,7 @@ else
     RUN_CMD = ./image_processor
 endif
 
-CLI_CFLAGS = -Wall -Wextra -O3 -fopenmp $(if $(filter Windows_NT,$(OS)),-mthreads,-pthread)
+CLI_CFLAGS = -Wall -Wextra -O3 -fopenmp -fPIC $(if $(filter Windows_NT,$(OS)),-mthreads,-pthread)
 CLI_LDFLAGS = -fopenmp $(if $(filter Windows_NT,$(OS)),-mthreads,-pthread) -lm
 CLI_SRCS = src/main.c src/transform.c src/utils.c src/clio.c
 CLI_OBJS = $(CLI_SRCS:.c=.o)
@@ -22,6 +22,9 @@ LIB_CFLAGS = -Wall -Wextra -O3 -fopenmp -fPIC -std=gnu99 -D_CRT_SECURE_NO_WARNIN
 LIB_LDFLAGS = -fopenmp
 LIB_SRCS = src/transform.c src/utils.c
 LIB_OBJS = $(LIB_SRCS:.c=.o)
+
+src/%.o: src/%.c
+	$(CC) $(LIB_CFLAGS) -c $< -o $@
 
 all: cli lib
 

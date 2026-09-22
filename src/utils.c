@@ -3,6 +3,9 @@
 #include "../include/utils.h"
 #include "../include/stb_image.h"
 
+EXPORT void freeFrame(unsigned char* frameBuffer) {
+  free(frameBuffer);
+}
 
 EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
     switch (handler->filter) {
