@@ -1,3 +1,4 @@
+#include <bits/time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -14,7 +15,7 @@
 #include "../include/clio.h"
 
 #define PATH "assets"
-#define FILE "pixilized"
+#define FILE "pasaro"
 
 int main() {
     char imgPath[256];
@@ -30,15 +31,15 @@ int main() {
     int buffer = ((Image.w + 2 * Image.pS) * (Image.h + 2 * Image.pS)) * Image.c;
     printf("image buffer size: %d\n", buffer);
 
-
-    clock_t clocki = clock();
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     //paddImage(&Image, Convo.size);    // faz padding da imagem
     unsigned char* newImgBuffer = convoluteImg(&Image, &Convo);   // aplica convolução na imagem
     swapImgRef(&Image, newImgBuffer, 0);
 
-    clock_t clockf = clock();
-    double tempo_execucao = (double)(clockf - clocki) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double tempo_execucao = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
     printf("tempo de execução: %f\n", tempo_execucao);
 
 
