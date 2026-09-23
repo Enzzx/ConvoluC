@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "../include/utils.h"
-#include "../include/stb_image.h"
 
 EXPORT void freeFrame(unsigned char* frameBuffer) {
   free(frameBuffer);
@@ -163,6 +163,32 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
     imgHandler->pS = (handler->size - 1) / 2;
 }
 
+void rgb2hsv(int r, int g, int b, float* h, float* s, float* v) {
+    float nR = (float)r/255;
+    float nG = (float)g/255;
+    float nB = (float)b/255;
+
+    char Cmax = nR > nG && nR > nB ? 'r' : nG > nB ? 'g' : 'b';
+    char Cmin = nR < nG && nR < nB ? 'r' : nG < nB ? 'g' : 'b';
+    float delta = (Cmax == 'r' ? nR : Cmax == 'g' ? nG : nB) - (Cmin == 'r' ? nR : Cmin == 'g' ? nG : nB);
+    int max = nR > nG && nR > nB ? nR : nG > nB ? nG : nB;
+
+    if (h != NULL) {
+        if (Cmax == 'r') {
+            *h = 60 * ((int)((nG - nB) / delta) % 6);
+        } else if (Cmax == 'g') {
+            *h = 60 * ((int)((nB - nR) / delta) + 2);
+        } else {
+            *h = 60 * ((int)((nR - nG) / delta) + 4);
+        }
+    }
+    if (s != NULL) {
+        *s = max == 0 ? 0 : delta/max * 100;
+    }
+    if (v != NULL) {
+        *v = max * 100;
+    }
+}
 
 void normalize(float* matrix, int sizeX, int sizeY, int sizeC, float divisor) {
     for (int i = 0; i < sizeY; i++) {
