@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <math.h>
 #include <omp.h>
 #include "../include/transform.h"
@@ -27,7 +27,8 @@ void paddImage(ImgH* H, int mSize) {
 
 	H->w += 2 * H->pS;
 	H->h += 2 * H->pS;
-
+    
+    //tirar isso daqui, chamar o swap manuelamnete fora da func
 	//swapImgRef(H, newData, 0);
 }
 
@@ -72,7 +73,26 @@ static inline float appGreyScale(ImgH* ImgH, int point, unsigned char* imgPixel)
 	return 255;
 }
 
-static inline float appErosion(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned char *imgPixel) {
+static inline float appChroma(ImgH* ImgH, int point, unsigned char* imgPixel) {
+    float h, s, v;
+    rgb2hsv(ImgH->data[point], ImgH->data[point+1], ImgH->data[point+2], &h, &s, &v);
+
+    int applyMask = (h >= 70 && h <= 170) && (s >= 15 && s <= 100) && (v >= 15 && v <= 100);
+    
+    if (applyMask) {
+        for (int k = 0; k < maxChannels; k++) {
+            imgPixel[k] = ImgH->aux[point+k];
+        }
+    } else {
+        for (int k = 0; k < maxChannels; k++) {
+            imgPixel[k] = ImgH->data[point+k];
+        }
+    }
+
+    return 255;
+}
+
+static inline float appErosion(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
 	int rmColor[maxChannels];
 	int channels = ImgH->c;
 	for (int k = 0; k < channels; k++)
@@ -101,7 +121,7 @@ static inline float appErosion(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned
 }
 
 // instead of verifying the color channels maybe convert and analyze each pixel as hsv - for erosion and dilation
-static inline float appDilation(ImgH *ImgH, MatrixH *MatrixH, int point, unsigned char *imgPixel) {
+static inline float appDilation(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned char* imgPixel) {
 	unsigned char rmColor[maxChannels];
 	int channels = ImgH->c;
 	for (int k = 0; k < channels; k++)
@@ -392,20 +412,22 @@ static inline float appDefault(ImgH* ImgH, MatrixH* MatrixH, int point, unsigned
 }
 
 
+
 static inline float applicateKernelP(ImgH* i, MatrixH* k, int p, unsigned char* nM) {
 	switch (k->filter) {
 	case ColorShift:    return appColorShift(i, k, p, nM);
 	case NegativeColor:	return appNegativeColor(i, p, nM);
 	case Greyscale:		return appGreyScale(i, p, nM);
+    case ChromaKey:     return appChroma(i, p, nM);
 	case Identity:		return 0.0;
 	case SobelEdge:     return appSobel(i, p, nM);
 	case LaplacianEdge: return appLaplace(i, k, p, nM);
 	case Emboss:        return appEmboss(i, p, nM);
-  case Erosion:       return appErosion(i, k, p, nM);
-  case Dilation:       return appDilation(i, k, p, nM);
+    case Erosion:       return appErosion(i, k, p, nM);
+    case Dilation:       return appDilation(i, k, p, nM);
 	case MotionBlur:    return appMotionBlur(i, k, p, nM);
 	case Sharpen:       return appSharpen(i, p, nM);
-  case KuwaharaFilter: return applyKuwahara(i, k, p, nM);
+    case KuwaharaFilter: return applyKuwahara(i, k, p, nM);
 	default:            return appDefault(i, k, p, nM);
 	}
 }

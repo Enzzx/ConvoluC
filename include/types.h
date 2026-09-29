@@ -15,6 +15,7 @@ typedef enum {
 	ColorShift, // red and blue edge effect
 	NegativeColor, // invert the image colors
 	Greyscale, // put all colors on monocromatic grey scale grade
+    ChromaKey, // cleans a defined color background
 
 	// - - - fixed size filters - - - 
 	SobelEdge, // sobel edge detection
@@ -23,13 +24,13 @@ typedef enum {
 	Identity, // self value (no change)
 
 	// - - - free size filters - - - 
-  Erosion, // erode image
-  Dilation, // dilate image
+    Erosion, // erode image
+    Dilation, // dilate image
 	Blur, // gaussian distribution for blur
 	Uniform, // uniform distribution
 	MotionBlur, // blur with motion effect
 	Sharpen, // sharp image
-  KuwaharaFilter, // gives oil painting feel to image
+    KuwaharaFilter, // gives oil painting feel to image
 } FilterType;
 
 typedef struct {
@@ -39,6 +40,7 @@ typedef struct {
     int pS; // paddingSize
   	int kt; // keepTrack
     unsigned char* data; // image buffer
+    unsigned char* aux; // auxiliar imagem buffer
 } ImgH;
 
 typedef struct {

@@ -70,6 +70,7 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         "ColorShift",
         "NegativeColor",
         "GreyScale",
+        "ChromaKey",
         "SobelEdge",
         "LaplacianEdge",
         "Emboss",
@@ -83,7 +84,7 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         "KuwaharaFilter"
     };
 
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < 15; i++) {
         printf("(%d) %s\t\t", i, filterNames[i]);
         if (i % 4 == 3) printf("\n");
     }
@@ -118,6 +119,12 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
     case Greyscale:
         handler->M = 0;
         handler->size = 1;
+        break;
+    case ChromaKey:
+        handler->M = 0;
+        handler->size = 1;
+        printf("Escolha a nova imagem de fundo: ");
+        scanf("%s", imgHandler->aux);
         break;
 
     case SobelEdge:
