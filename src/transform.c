@@ -80,11 +80,18 @@ static inline float appChroma(ImgH* ImgH, int point, unsigned char* imgPixel) {
     int applyMask = (h >= 90 && h <= 150) && (s >= 15 && s <= 100) && (v >= 15 && v <= 100);
     int channels = ImgH->c;
     
-    if (applyMask) {
+    if (applyMask && ImgH->aux) {
+        int x = (point / channels) % ImgH->w;
+        int y = (point / channels) / ImgH->w;
+        if (x >= ImgH->auxW) x = ImgH->auxW - 1;
+        if (y >= ImgH->auxH) y = ImgH->auxH - 1;
+
+        int auxPoint = (y * ImgH->auxW + x) * ImgH->auxC;
+
         for (int k = 0; k < channels; k++) {
-            imgPixel[k] = ImgH->aux[point+k];
+            imgPixel[k] = (k < ImgH->auxC) ? ImgH->aux[auxPoint + k] : 255;
         }
-    } else {
+    } else { 
         for (int k = 0; k < channels; k++) {
             imgPixel[k] = ImgH->data[point+k];
         }

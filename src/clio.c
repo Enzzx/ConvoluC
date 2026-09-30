@@ -68,8 +68,10 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         scanf("%s", filename);
         sprintf(backPath, "%s/%s", REFPATH, filename);
         
-        int x, y, c;
-        imgHandler->aux = stbi_load(backPath, &x, &y, &c, 0);
+        int x, y;
+        imgHandler->aux = stbi_load(backPath, &imgHandler->auxW, &imgHandler->auxH, &imgHandler->auxC, 0);
+
+        if (!imgHandler->aux) printf("\nNão foi encontrada a imagem %s\n", backPath);
     }
 
     defineMatrix(imgHandler, handler);

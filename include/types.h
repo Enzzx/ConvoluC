@@ -42,6 +42,9 @@ typedef struct {
   	int kt; // keepTrack
     unsigned char* data; // image buffer
     unsigned char* aux; // auxiliar imagem buffer
+    int auxW; // width from the auxiliar
+    int auxH; // height from the auxiliar
+    int auxC; // channels from the auxiliar
 } ImgH;
 
 typedef struct {
