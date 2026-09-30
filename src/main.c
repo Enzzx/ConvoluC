@@ -12,8 +12,6 @@
 #include "../include/types.h"
 #include "../include/clio.h"
 
-#define REFPATH "assets"
-
 int main() {
     char imgPath[256];
     char filename[128];

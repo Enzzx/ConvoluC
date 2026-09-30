@@ -6,8 +6,9 @@
 #else
 	#define EXPORT
 #endif
-#define maxChannels 4
 
+#define REFPATH "assets"
+#define maxChannels 4
 #define FIXED_KERNEL_SIZE 3
 
 typedef enum {
