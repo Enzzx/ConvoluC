@@ -23,6 +23,7 @@ int main() {
 
     MatrixH Convo;
     ImgH Image;
+    Image.aux = NULL;
     configMatrix(&Image, &Convo);   // escolha do filtro
 
     Image.data = stbi_load(imgPath, &Image.w, &Image.h, &Image.c, 0);   // pega imagem
@@ -51,6 +52,7 @@ int main() {
     if (Convo.M)
         free(Convo.M);  // libera alocações
     Image.kt ? stbi_image_free(Image.data) : free(Image.data);
+    if (Image.aux) stbi_image_free(Image.aux);
 
     return 0;
 }

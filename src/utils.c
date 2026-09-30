@@ -19,6 +19,7 @@ EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
         break;
     case ChromaKey:
         handler->M = 0;
+        handler->size = 1;
         break;
 
     case SobelEdge:

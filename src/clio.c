@@ -61,5 +61,14 @@ void configMatrix(ImgH* imgHandler, MatrixH* handler) {
         if (handler->size % 2 == 0) handler->size++;
     }
 
+    if (handler->filter == ChromaKey) {
+        printf("Escolha a nova imagem de fundo: ");
+        char backPath[256];
+        scanf("%s", backPath);
+        
+        int x, y, c;
+        imgHandler->aux = stbi_load(backPath, &x, &y, &c, 0);
+    }
+
     defineMatrix(imgHandler, handler);
 }
