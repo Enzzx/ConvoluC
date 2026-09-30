@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "../include/utils.h"
@@ -10,13 +9,16 @@ EXPORT void freeFrame(unsigned char* frameBuffer) {
 EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
     switch (handler->filter) {
     case ColorShift:
-        handler->M = (float*)1;
+        handler->M = 0;
         break;
     case NegativeColor:
-        handler->M = (float*)1;
+        handler->M = 0;
         break;
     case Greyscale:
-        handler->M = (float*)1;
+        handler->M = 0;
+        break;
+    case ChromaKey:
+        handler->M = 0;
         break;
 
     case SobelEdge:
@@ -40,113 +42,6 @@ EXPORT void defineMatrix(ImgH* imgHandler, MatrixH* handler) {
         break;
     case Dilation:
         handler->M = 0;
-        break;
-    case Blur:
-        handler->M = blurM(handler->size);
-        break;
-    case Uniform:
-        handler->M = uniformM(handler->size);
-        break;
-    case MotionBlur:
-        handler->M = 0;
-        break;
-    case Sharpen:
-        handler->M = blurM(handler->size);
-        break;
-    case KuwaharaFilter:
-        handler->M = 0;
-        break;
-    default:
-        break;
-    }
-
-    imgHandler->pS = (handler->size - 1) / 2;
-}
-
-void configMatrix(ImgH* imgHandler, MatrixH* handler) {
-    int filterI;
-    
-    const char* filterNames[] = {
-        "ColorShift",
-        "NegativeColor",
-        "GreyScale",
-        "ChromaKey",
-        "SobelEdge",
-        "LaplacianEdge",
-        "Emboss",
-        "Identity",
-        "Erosion",
-        "Dilation",
-        "Blur",
-        "Uniform",
-        "MotionBlur",
-        "Sharpen",
-        "KuwaharaFilter"
-    };
-
-    for (int i = 0; i < 15; i++) {
-        printf("(%d) %s\t\t", i, filterNames[i]);
-        if (i % 4 == 3) printf("\n");
-    }
-    printf("\nEscolha um filtro: ");
-
-    scanf("%d", &filterI);
-    handler->filter = filterI;
-
-    if (handler->filter > Identity) {
-        printf("\nSelecione o tamanho do kernel: ");
-        scanf("%d", &handler->size);
-
-        if (handler->size > 100) {
-            printf("\nQuer fritar a CPU paezao?!!");
-            return;
-        }
-
-        if (handler->size % 2 == 0) handler->size++;
-    }
-
-    switch (handler->filter) {
-    case ColorShift:
-        handler->M = 0;
-        handler->size = 1;
-        printf("\nEscolha o tamanho de desvio: ");
-        scanf("%d", &handler->size);
-        break;
-    case NegativeColor:
-        handler->M = 0;
-        handler->size = 1;
-        break;
-    case Greyscale:
-        handler->M = 0;
-        handler->size = 1;
-        break;
-    case ChromaKey:
-        handler->M = 0;
-        handler->size = 1;
-        printf("Escolha a nova imagem de fundo: ");
-        scanf("%s", imgHandler->aux);
-        break;
-
-    case SobelEdge:
-        handler->M = sobelM();
-        handler->size = FIXED_KERNEL_SIZE;
-        break;
-    case LaplacianEdge:
-        handler->M = laplaceM();
-        handler->size = FIXED_KERNEL_SIZE;
-        break;
-    case Emboss:
-        handler->M = embossM();
-        handler->size = FIXED_KERNEL_SIZE;
-        break;
-    case Identity:
-        handler->M = 0;
-        handler->size = 1;
-        break;
-
-    case Erosion:
-        handler->M = 0;
-        handler->size = handler->size;
         break;
     case Blur:
         handler->M = blurM(handler->size);

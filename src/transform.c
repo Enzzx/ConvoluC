@@ -78,13 +78,14 @@ static inline float appChroma(ImgH* ImgH, int point, unsigned char* imgPixel) {
     rgb2hsv(ImgH->data[point], ImgH->data[point+1], ImgH->data[point+2], &h, &s, &v);
 
     int applyMask = (h >= 70 && h <= 170) && (s >= 15 && s <= 100) && (v >= 15 && v <= 100);
+    int channels = ImgH->c;
     
     if (applyMask) {
-        for (int k = 0; k < maxChannels; k++) {
+        for (int k = 0; k < channels; k++) {
             imgPixel[k] = ImgH->aux[point+k];
         }
     } else {
-        for (int k = 0; k < maxChannels; k++) {
+        for (int k = 0; k < channels; k++) {
             imgPixel[k] = ImgH->data[point+k];
         }
     }

@@ -1,4 +1,3 @@
-#include <bits/time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -10,7 +9,6 @@
 #include "../include/stb_image_write.h"
 
 #include "../include/transform.h"
-#include "../include/utils.h"
 #include "../include/types.h"
 #include "../include/clio.h"
 
