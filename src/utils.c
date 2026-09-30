@@ -74,22 +74,26 @@ void rgb2hsv(int r, int g, int b, float* h, float* s, float* v) {
     char Cmax = nR > nG && nR > nB ? 'r' : nG > nB ? 'g' : 'b';
     char Cmin = nR < nG && nR < nB ? 'r' : nG < nB ? 'g' : 'b';
     float delta = (Cmax == 'r' ? nR : Cmax == 'g' ? nG : nB) - (Cmin == 'r' ? nR : Cmin == 'g' ? nG : nB);
-    int max = nR > nG && nR > nB ? nR : nG > nB ? nG : nB;
+    float max = nR > nG && nR > nB ? nR : nG > nB ? nG : nB;
 
     if (h != NULL) {
         if (Cmax == 'r') {
-            *h = 60 * ((int)((nG - nB) / delta) % 6);
+            float diff = ((nG - nB) / delta); 
+            *h = 60 * (diff < 0 ? diff + 6.0f : diff);
         } else if (Cmax == 'g') {
-            *h = 60 * ((int)((nB - nR) / delta) + 2);
+            *h = 60 * (((nB - nR) / delta) + 2.0f);
         } else {
-            *h = 60 * ((int)((nR - nG) / delta) + 4);
+            *h = 60 * (((nR - nG) / delta) + 4.0f);
         }
+
+        if (*h < 0) *h += 360.0f;
+        if (*h >= 360) *h -= 360.0f;
     }
     if (s != NULL) {
-        *s = max == 0 ? 0 : delta/max * 100;
+        *s = max == 0.0f ? 0.0f : delta/max * 100.0f;
     }
     if (v != NULL) {
-        *v = max * 100;
+        *v = max * 100.0f;
     }
 }
 
